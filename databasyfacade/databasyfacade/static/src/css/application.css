@@ -1,0 +1,28 @@
+body {
+    padding: 50px;
+}
+
+#productDescription {
+    margin: 0.5em 0 1em;
+}
+
+#startTrialForm legend {
+    color: #006400;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+#startTrialForm input,
+#startTrialForm button {
+    display: block;
+    margin: 0 auto 10px;
+}
+
+#startTrialForm input {
+    width: 300px;
+}
+
+#startTrialForm button {
+    margin-top: 15px;
+    width: 200px;
+}

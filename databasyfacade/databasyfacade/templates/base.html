@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    {% block meta %}
+    {% endblock %}
+
+    {% block css %}
+        <link rel="stylesheet" href="/static/css/reset.css" media="screen, projection">
+        <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.min.css" media="screen">
+        <link rel="stylesheet" href="/static/src/css/application.css" media="screen">
+    {% endblock %}
+
+    {% block js %}
+        <script src="/static/libs/jquery-1.8.1.min.js"></script>
+        <script src="/static/libs/bootstrap/js/bootstrap.min.js"></script>
+    {% endblock %}
+</head>
+<body>
+<div id="header">
+    {% block header %}
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="brand" href="#">{{ site_name }}</a>
+                    <ul class="nav">
+                        <li class="active"><a href="#">Home</a></li>
+                    </ul>
+                    <form class="navbar-form pull-right">
+                        <input type="text" class="span2" placeholder="Email">
+                        <input type="password" class="span2" placeholder="Password">
+                        <button type="submit" class="btn">Sign In</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
+</div>
+
+<div id="content">
+    {% block content %}
+    {% endblock %}
+</div>
+
+<div id="footer">
+    {% block footer %}
+        <hr/>
+        <p class="text-center muted">&copy; 2013 {{ site_name }}</p>
+    {% endblock %}
+</div>
+</body>
+</html>
