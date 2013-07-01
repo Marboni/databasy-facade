@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ site_name }}{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 id="productDescription" class="text-center">Databasy.com helps developers to design,
+            <br/>discuss and support databases cooperatively.</h1>
+        <div class="row">
+            <div class="span6"></div>
+            <div class="span6">
+                <form id="startTrialForm" action="{{ url_for('public.home') }}" method="post">
+                    <fieldset>
+                        <legend class="text-center">Try our product now</legend>
+                        {% for field in sign_up_form if field.widget.input_type != 'hidden' %}
+                            {% if field.errors %}
+                                <div class="control-group error">
+                                    {{ field(placeholder=field.label.text) }}
+                                    {% for error in field.errors %}
+                                        <div class="help-inline">{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="control-group">
+                                    {{ field(placeholder=field.label.text) }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for field in sign_up_form if field.widget.input_type == 'hidden' %}
+                            {{ field }}
+                        {% endfor %}
+                        <button type="submit" class="btn btn-success">Start free trial</button>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

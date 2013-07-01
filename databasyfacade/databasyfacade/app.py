@@ -1,11 +1,14 @@
+import functools
 from logging import StreamHandler, Formatter
 import logging
 import sys
 from flask import Flask
+from flask.ext.login import LoginManager
 import os
 from werkzeug.serving import run_simple
-from databasyfacade import config
-from databasyfacade.core.context_processor import context_processor
+from databasyfacade import config, db
+from databasyfacade.auth import load_user
+from databasyfacade.context_processor import context_processor
 
 __author__ = 'Marboni'
 
@@ -32,7 +35,7 @@ def wrap_into_middlewares(app):
         app.wsgi_app = getattr(module, clazz_name)(app)
 
 
-def configure_logging(app):
+def init_logging(app):
     if not app.debug:
         stderr_handler = StreamHandler(sys.stderr)
         stderr_handler.setLevel(logging.WARNING)
@@ -41,19 +44,32 @@ def configure_logging(app):
         ))
         app.logger.addHandler(stderr_handler)
 
-def create_context_processor(app):
+def init_context_processor(app):
     #noinspection PyUnusedLocal
-    @app.context_processor
-    def cp():
-        return context_processor(app)
+    app.template_context_processors[None].append(functools.partial(context_processor, app))
+
+def init_db(app):
+    db.init_engine(app.config['DATABASE_URI'], echo=app.config['DATABASE_ECHO'])
+
+def init_login_manager(app):
+    login_manager = LoginManager()
+    #noinspection PyTypeChecker
+    login_manager.user_loader(load_user)
+    login_manager.login_view = app.config['LOGIN_VIEW']
+    login_manager.login_message = app.config['LOGIN_MESSAGE']
+    login_manager.init_app(app)
 
 def create_app():
     app = Flask('databasyfacade')
     app.config.from_object(config.config_by_mode(os.environ.get('DATABASY_ENV')))
     load_modules(app)
     wrap_into_middlewares(app)
-    configure_logging(app)
-    create_context_processor(app)
+
+    init_logging(app)
+    init_context_processor(app)
+    init_db(app)
+    init_login_manager(app)
+
     return app
 
 app = create_app()

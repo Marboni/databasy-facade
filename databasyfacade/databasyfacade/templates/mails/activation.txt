@@ -1,0 +1,8 @@
+Hello, {{ user_name }}!
+
+Please, click on this link to confirm your registration on {{ site_name }}:
+
+    {{ confirmation_link }}
+
+Regards,
+  {{ site_name }} Team.

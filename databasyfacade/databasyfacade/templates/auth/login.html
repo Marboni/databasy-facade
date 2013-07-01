@@ -1,0 +1,50 @@
+{% extends 'base_simple.html' %}
+
+{% block title %}Login{% endblock %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="span8 offset2">
+                <form id="signInForm" class="form-horizontal" action="{{ url_for('auth.login') }}" method="post">
+                    <fieldset>
+                        <legend>Login</legend>
+                        {% for field in sign_in_form if field.widget.input_type != 'hidden' and field.name != 'remember_me' %}
+                            {% if field.errors %}
+                                <div class="control-group error">
+                                    {{ field.label(class='control-label') }}
+                                    <div class="controls">
+                                        {{ field }}
+                                        {% for error in field.errors %}
+                                            <br/>
+                                            <div class="help-inline">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="control-group">
+                                    {{ field.label(class='control-label') }}
+                                    <div class="controls">
+                                        {{ field }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for field in sign_in_form if field.widget.input_type == 'hidden' %}
+                            {{ field }}
+                        {% endfor %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <label class="checkbox">
+                                    {{ sign_in_form.remember_me }} {{ sign_in_form.remember_me.label.text }}
+                                </label>
+                                <button type="submit" class="btn btn-success">Login</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

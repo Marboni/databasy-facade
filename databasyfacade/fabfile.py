@@ -12,6 +12,11 @@ def relative(func):
             func(*args, **kwargs)
     return wrapper
 
+def local_manage(cmd):
+    local('../env/bin/python manage.py %(cmd)s' % {
+        'cmd': cmd,
+        })
+
 def local_pip(cmd):
     local('../env/bin/pip %(cmd)s' % {
         'cmd': cmd,
@@ -34,6 +39,13 @@ def install(pkg):
 def uninstall(pkg):
     local_pip('uninstall %s' % pkg)
     requirements()
+
+@relative
+def recreatedb(mode=None):
+    cmd = 'recreatedb'
+    if mode:
+        cmd += ' ' + mode
+    local_manage(cmd)
 
 @relative
 def tests():

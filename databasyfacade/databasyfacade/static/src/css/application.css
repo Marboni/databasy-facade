@@ -10,19 +10,21 @@ body {
     color: #006400;
     font-size: 26px;
     font-weight: bold;
-}
-
-#startTrialForm input,
-#startTrialForm button {
-    display: block;
-    margin: 0 auto 10px;
+    margin-bottom: 0;
 }
 
 #startTrialForm input {
+    display: block;
+    margin: 0 73px;
     width: 300px;
 }
 
+#startTrialForm .error .help-inline {
+    margin-left: 73px;
+    padding: 0;
+}
+
 #startTrialForm button {
-    margin-top: 15px;
     width: 200px;
+    margin: 15px 130px 10px;
 }

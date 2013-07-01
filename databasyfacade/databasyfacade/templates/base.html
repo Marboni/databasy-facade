@@ -6,7 +6,6 @@
     {% endblock %}
 
     {% block css %}
-        <link rel="stylesheet" href="/static/css/reset.css" media="screen, projection">
         <link rel="stylesheet" href="/static/libs/bootstrap/css/bootstrap.min.css" media="screen">
         <link rel="stylesheet" href="/static/src/css/application.css" media="screen">
     {% endblock %}
@@ -14,6 +13,7 @@
     {% block js %}
         <script src="/static/libs/jquery-1.8.1.min.js"></script>
         <script src="/static/libs/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/static/src/js/application.js"></script>
     {% endblock %}
 </head>
 <body>
@@ -22,15 +22,23 @@
         <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a class="brand" href="#">{{ site_name }}</a>
-                    <ul class="nav">
-                        <li class="active"><a href="#">Home</a></li>
-                    </ul>
-                    <form class="navbar-form pull-right">
-                        <input type="text" class="span2" placeholder="Email">
-                        <input type="password" class="span2" placeholder="Password">
-                        <button type="submit" class="btn">Sign In</button>
-                    </form>
+                    <a class="brand" href="{{ url_for('public.home') }}">{{ site_name }}</a>
+                    {% block navigation %}
+                        <ul class="nav">
+                            <li class="active"><a href="#">Home</a></li>
+                        </ul>
+                    {% endblock %}
+                    {% block authentication %}
+                        {% if current_user.is_authenticated() %}
+                            <ul class="nav pull-right">
+                                <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                            </ul>
+                        {% else %}
+                            <ul class="nav pull-right">
+                                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                            </ul>
+                        {% endif %}
+                    {% endblock %}
                 </div>
             </div>
         </div>
@@ -38,6 +46,9 @@
 </div>
 
 <div id="content">
+    {% block flush %}
+        {% include 'includes/flash.html' %}
+    {% endblock %}
     {% block content %}
     {% endblock %}
 </div>
