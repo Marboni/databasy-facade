@@ -1,5 +1,4 @@
 # coding=utf-8
-import datetime
 
 __author__ = 'Marboni'
 
@@ -9,11 +8,12 @@ class Config(object):
 
     SITE_NAME = 'Databasy.com'
     DOMAIN = 'databasy.com'
-    ENDPOINT = 'http://www.' + DOMAIN
+    ENDPOINT = 'http://www.databasy.com'
 
     MODULES = {
-        '': 'databasyfacade.site.public.views',
+        '': 'databasyfacade.site.root.views',
         '/auth': 'databasyfacade.site.auth.views',
+        '/models': 'databasyfacade.site.models.views',
         }
 
     MIDDLEWARES = (
@@ -29,7 +29,7 @@ class Config(object):
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy'
     DATABASE_ECHO = True
 
-    SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMUG6cyNezEwrQMKgsg'
+    SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMU'
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
@@ -44,22 +44,31 @@ class DevelopmentConfig(Config):
 
     DEBUG = True
     DOMAIN = 'databasy'
+    ENDPOINT = 'http://databasy'
 
+    DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_development'
 
 class TestingConfig(Config):
     ENV = 'testing'
 
     DOMAIN = 'databasy'
+    ENDPOINT = 'http://databasy'
+
+    DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_testing'
 
 
 class StagingConfig(Config):
     ENV = 'staging'
 
     DOMAIN = 'databasy'
+    ENDPOINT = 'http://databasy'
 
+    DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_staging'
 
 class ProductionConfig(Config):
     ENV = 'production'
+
+    DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_production'
 
 CONFIGS = [
     DevelopmentConfig,

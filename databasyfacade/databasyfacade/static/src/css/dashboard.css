@@ -1,0 +1,29 @@
+#dashboard .account {
+    margin: 0;
+    border-radius: 3px 3px 0 0;
+}
+
+#dashboard table.models td {
+    padding: 10px;
+}
+
+#dashboard table.models tr.model:first-child td {
+    border-top: none;
+}
+
+#dashboard table.models tr.model:hover > td,
+#dashboard table.models tr.model:hover > th {
+    background-color: #fdfdfd;
+}
+
+#dashboard table.models tr.model .modelActions {
+    display: none;
+}
+
+#dashboard table.models tr.model:hover .modelActions {
+    display: block;
+}
+
+#dashboard table.models .modelActions a {
+    margin-left: 10px;
+}

@@ -2,14 +2,22 @@
 
 {% block title %}{{ site_name }}{% endblock %}
 
+{% block navigation %}
+    <ul class="nav">
+        <li class="active"><a href="{{ url_for('root.home') }}">Home</a></li>
+    </ul>
+{% endblock %}
+
 {% block content %}
     <div class="container">
-        <h1 id="productDescription" class="text-center">Databasy.com helps developers to design,
-            <br/>discuss and support databases cooperatively.</h1>
+        <h1 id="productDescription" class="text-center">
+            Databasy.com helps developers to design,
+            <br/>
+            discuss and support databases cooperatively.</h1>
         <div class="row">
             <div class="span6"></div>
             <div class="span6">
-                <form id="startTrialForm" action="{{ url_for('public.home') }}" method="post">
+                <form id="startTrialForm" action="{{ url_for('root.home') }}" method="post">
                     <fieldset>
                         <legend class="text-center">Try our product now</legend>
                         {% for field in sign_up_form if field.widget.input_type != 'hidden' %}

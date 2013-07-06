@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}New Model{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="span8 offset2">
+                <form id="newModelForm" class="form-horizontal" action="{{ url_for('models.new_model') }}"
+                      method="post">
+                    <fieldset>
+                        <legend>New Model</legend>
+                        {% with form = new_model_form %}
+                            {% include 'includes/form_fields.html' %}
+                        {% endwith %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-success">Create model</button>
+                                <a href="{{ url_for('root.home') }}" class="btn">Cancel</a>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

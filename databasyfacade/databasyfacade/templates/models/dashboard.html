@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ site_name }}{% endblock %}
+
+{% block content %}
+    <div id="dashboard" class="container">
+        <div class="row">
+            <a href="{{ url_for('models.new_model') }}" role="button" data-toggle="modal"
+               class="btn btn-success pull-right">New model</a>
+        </div>
+        <br/>
+        {% if not own_models and not shared_model %}
+            <p class="muted text-center">You have no models yet. It's time to create one!</p>
+        {% else %}
+            {% if own_models %}
+                <div class="well well-small account">
+                    <span class="lead">Your models</span>
+                </div>
+                <table class="table table-hover models">
+                    {% for model in own_models %}
+                        <tr class="model">
+                            <td>
+                                <a href="{{ model.full_path() }}">{{ model.schema_name }}</a>
+                                <br/>
+                                <em class="muted">{{ model.description }}</em>
+                            </td>
+                            <td>
+                                <div class="pull-right modelActions">
+                                    <a href="#">Link</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+            {% if shared_models %}
+                <div class="well well-small account">
+                    <span class="lead">Shared models</span>
+                </div>
+                <table class="table table-hover models">
+                    {% for model in shared_models %}
+                        <tr class="model">
+                            <td>
+                                {{ model.schema_name }}
+                                <br/>
+                                {{ model.description }}
+                            </td>
+                            <td>
+                                <div class="pull-right modelActions">
+                                    <a href="#">Link</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}

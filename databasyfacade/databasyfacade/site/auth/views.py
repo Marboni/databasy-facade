@@ -11,7 +11,7 @@ bp = Blueprint('auth', __name__)
 @bp.route('/login/', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated():
-        return redirect(url_for('public.home'))
+        return redirect(url_for('root.home'))
 
     form = LoginForm(request.values)
     if request.method == 'POST' and form.validate():
@@ -23,14 +23,14 @@ def login():
             if user.is_active():
                 if user.check_password(form.password.data):
                     login_user(user, form.remember_me.data)
-                    redirect_to = form.next.data or url_for('public.home')
+                    redirect_to = form.next.data or url_for('root.home')
                     return redirect(redirect_to)
                 else:
                     form.password.errors = ['Incorrect password.']
             else:
                 form.email.errors = ['This email address is not confirmed.']
     return render_template('auth/login.html',
-        sign_in_form=form
+        login_form=form
     )
 
 
@@ -40,7 +40,7 @@ def activate():
     if user:
         login_user(user, True)
         flash('Welcome!', 'success')
-        return redirect(url_for('public.home'))
+        return redirect(url_for('root.home'))
     else:
         logout_user()
         flash('''Email confirmation token does not exist. There are two possible causes:
@@ -54,12 +54,12 @@ def activate():
             </ul>
             ''', 'warning')
         return render_template('auth/login.html',
-            sign_in_form=LoginForm()
+            login_form=LoginForm()
         )
 
 
 @bp.route('/logout/')
-@login_required
 def logout():
-    logout_user()
-    return redirect(url_for('public.home'))
+    if current_user.is_authenticated():
+        logout_user()
+    return redirect(url_for('root.home'))

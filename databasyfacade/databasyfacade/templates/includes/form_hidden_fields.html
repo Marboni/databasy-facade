@@ -1,0 +1,3 @@
+{% for field in form if field.widget.input_type == 'hidden' and field.name not in excluded_fields %}
+    {{ field }}
+{% endfor %}
