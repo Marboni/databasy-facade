@@ -1,4 +1,5 @@
 # coding=utf-8
+import datetime
 
 __author__ = 'Marboni'
 
@@ -22,6 +23,7 @@ class Config(object):
 
     LOGIN_VIEW = 'auth.login'
     LOGIN_MESSAGE = None
+    REMEMBER_COOKIE_DURATION = datetime.timedelta(days=30)
 
     HOST = ''
     PORT = 5000
