@@ -19,8 +19,8 @@ def dashboard():
 @bp.route('/new/', methods=['GET', 'POST'])
 @login_required
 def new_model():
-    form = NewModelForm(request.form)
-    if request.method == 'POST' and form.validate():
+    form = NewModelForm()
+    if form.validate_on_submit():
         models_service.create_model(
             form.schema_name.data, form.description.data, form.database_type.data, current_user.id)
         return redirect(url_for('root.home'))

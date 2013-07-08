@@ -28,6 +28,8 @@ class Config(object):
     HOST = ''
     PORT = 5000
 
+    CSRF_ENABLED = True
+
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy'
     DATABASE_ECHO = True
 
@@ -53,8 +55,12 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     ENV = 'testing'
 
+    TESTING = True
+
     DOMAIN = 'databasy'
     ENDPOINT = 'http://databasy'
+
+    CSRF_ENABLED = False
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_testing'
 

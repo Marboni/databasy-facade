@@ -1,10 +1,10 @@
+from flask.ext.wtf import Form
 from wtforms import TextField, validators, PasswordField, ValidationError, HiddenField, BooleanField
 from databasyfacade.services import auth_service
-from databasyfacade.site.core.forms import BaseForm
 
 __author__ = 'Marboni'
 
-class SignUpForm(BaseForm):
+class SignUpForm(Form):
     name = TextField('Your name', [
         validators.Length(min=1, max=40)
     ], id='su_name')
@@ -24,7 +24,7 @@ class SignUpForm(BaseForm):
             raise ValidationError('This email is already registered.')
 
 
-class LoginForm(BaseForm):
+class LoginForm(Form):
     next = HiddenField('Next', id='li_next')
 
     email = TextField('Email', [

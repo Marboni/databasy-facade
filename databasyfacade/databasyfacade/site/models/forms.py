@@ -1,10 +1,10 @@
 from wtforms import TextField, validators, SelectField
 from databasyfacade.db import models
-from databasyfacade.site.core.forms import BaseForm
+from flask.ext.wtf import Form
 
 __author__ = 'Marboni'
 
-class NewModelForm(BaseForm):
+class NewModelForm(Form):
     schema_name = TextField('Schema name', [
         validators.Length(min=1, max=128)
     ], id='nmf_schema_name')

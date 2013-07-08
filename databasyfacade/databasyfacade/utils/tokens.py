@@ -17,9 +17,9 @@ PASSWORD_RESET_TOKEN_TYPE = 'password_reset'
 
 def create_token(type, user_id=None, params=None, expires_in=None):
     """ Creates token.
-Returns:
-newly-created token.
-"""
+    Returns:
+        newly-created token.
+    """
     if user_id and not str(user_id).isdigit():
         raise ValueError('User ID must be positive integer, not %s.' % user_id)
     if params and not isinstance(params, dict):
@@ -45,9 +45,9 @@ newly-created token.
 
 def retrieve_token(hex, type=None, user_id=None):
     """ Retrieves token.
-Returns:
-token or None if token not found.
-"""
+    Returns:
+        token or None if token not found.
+    """
     if not TOKEN_HEX_REGEXP.search(hex):
         return None
     now = time.mktime(time.localtime())
@@ -68,11 +68,13 @@ token or None if token not found.
     except NoResultFound:
         return None
 
+def user_tokens(user_id):
+    return dbs().query(Token).filter_by(user_id=user_id).all()
 
 def delete_token(hex, type=None):
     """ Deletes token.
-Returns:
-True if token has been found and deleted, False otherwise.
+    Returns:
+        True if token has been found and deleted, False otherwise.
 """
     ft = {'hex': hex}
     if type:

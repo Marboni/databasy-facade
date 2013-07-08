@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, url_for, request, flash, render_template
-from flask.ext.login import login_required, logout_user, login_user, current_user
+from flask.ext.login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.services import auth_service
 from databasyfacade.site.auth.forms import LoginForm
@@ -14,7 +14,7 @@ def login():
         return redirect(url_for('root.home'))
 
     form = LoginForm(request.values)
-    if request.method == 'POST' and form.validate():
+    if form.validate_on_submit():
         try:
             user = auth_service.user_by_email(form.email.data)
         except NoResultFound:

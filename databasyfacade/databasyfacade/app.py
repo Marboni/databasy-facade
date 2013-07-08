@@ -72,9 +72,8 @@ def create_app():
 
     return app
 
-app = create_app()
-
 if __name__ == '__main__':
+    app = create_app()
     print 'Server is listening on port %s.' % app.config['PORT']
     run_simple(app.config['HOST'], app.config['PORT'], app,
         use_reloader=False,
