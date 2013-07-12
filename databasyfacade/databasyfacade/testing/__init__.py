@@ -13,7 +13,7 @@ class DatabasyTest(TestCase):
         return app.create_app()
 
     def setUp(self):
-        db.recreatedb(self.app.config['DATABASE_URI'])
+        db.recreate_db(self.app.config['DATABASE_URI'])
 
     def tearDown(self):
         dbs().rollback()

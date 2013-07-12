@@ -33,6 +33,8 @@ class Config(object):
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy'
     DATABASE_ECHO = True
 
+    REDIS_URI = 'redis://localhost:6379/0'
+
     SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMU'
 
     MAIL_SERVER = 'smtp.gmail.com'
@@ -64,6 +66,8 @@ class TestingConfig(Config):
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_testing'
 
+    REDIS_URI = 'redis://localhost:6379/1'
+
 
 class StagingConfig(Config):
     ENV = 'staging'
@@ -73,10 +77,14 @@ class StagingConfig(Config):
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_staging'
 
+    REDIS_URI = 'redis://localhost:6379/2'
+
 class ProductionConfig(Config):
     ENV = 'production'
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_production'
+
+    REDIS_URI = 'redis://localhost:6379/3'
 
 CONFIGS = [
     DevelopmentConfig,

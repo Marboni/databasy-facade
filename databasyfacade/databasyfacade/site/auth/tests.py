@@ -24,14 +24,14 @@ class AuthTest(DatabasyTest):
             except NoResultFound:
                 self.fail('User not created.')
 
-            self.assertEqual('Boris', user.name)
-            self.assertEqual('BMarchenko@databasy.com', user.email)
             self.assertEqual('bmarchenko@databasy.com', user.email_lower)
             self.assertTrue(user.check_password('password'))
             self.assertFalse(user.active)
 
             try:
                 profile = profiles_service.profile(user.id)
+                self.assertEqual('Boris', profile.name)
+                self.assertEqual('BMarchenko@databasy.com', profile.email)
             except NoResultFound:
                 self.fail('Profile not created.')
 

@@ -19,7 +19,7 @@ def init_engine(uri, **kwargs):
     Session = scoped_session(sm)
     return engine
 
-def recreatedb(uri):
+def recreate_db(uri):
     engine = create_engine(uri, echo=False)
 
     # We need to update it when new module appears. It's error-prone, need to be done automatically.

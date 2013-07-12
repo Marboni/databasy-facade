@@ -6,7 +6,7 @@ from flask import Flask
 from flask.ext.login import LoginManager
 import os
 from werkzeug.serving import run_simple
-from databasyfacade import config, db
+from databasyfacade import config, db, cache
 from databasyfacade.auth import load_user
 from databasyfacade.context_processor import context_processor
 
@@ -50,6 +50,9 @@ def init_context_processor(app):
 
 def init_db(app):
     db.init_engine(app.config['DATABASE_URI'], echo=app.config['DATABASE_ECHO'])
+
+def init_cache(app):
+    cache.init_cache(app.config['REDIS_URI'])
 
 def init_login_manager(app):
     login_manager = LoginManager()

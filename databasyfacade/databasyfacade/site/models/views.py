@@ -1,4 +1,4 @@
-from flask import Blueprint, request, redirect, url_for, render_template, current_app
+from flask import Blueprint, redirect, url_for, render_template, current_app
 from flask.ext.login import login_required, current_user
 from databasyfacade.services import models_service
 from databasyfacade.site.models.forms import NewModelForm

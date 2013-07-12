@@ -10,16 +10,35 @@ def recreatedb(mode=None):
     DATABASY_ENV environment variable.
     """
     current_config = config.config_by_mode(mode)
-    from databasyfacade.db import recreatedb as recreate_sql
+    from databasyfacade.db import recreate_db
 
-    recreate_sql(current_config.DATABASE_URI)
+    recreate_db(current_config.DATABASE_URI)
     print '\nDatabase recreated: %s.' % current_config.DATABASE_URI
+
+
+def recreatecache(mode=None):
+    """ Recreates cache.
+    mode - application mode: 'development', 'testing', 'staging', 'production'. If None, value will be taken from
+    DATABASY_ENV environment variable.
+    """
+    current_config = config.config_by_mode(mode)
+    from databasyfacade.cache import recreate_cache
+
+    recreate_cache(current_config.REDIS_URI)
+    print '\nCache recreated: %s.' % current_config.REDIS_URI
+
 
 COMMANDS = {
     'recreatedb': {
         'method': recreatedb,
         'format': 'recreatedb [mode]',
         'help': 'recreates database. Optional parameter \'mode\' takes following values: '
+                'development, testing, staging, production.',
+    },
+    'recreatecache': {
+        'method': recreatecache,
+        'format': 'recreatecache [mode]',
+        'help': 'recreates cache. Optional parameter \'mode\' takes following values: '
                 'development, testing, staging, production.',
     }
 }

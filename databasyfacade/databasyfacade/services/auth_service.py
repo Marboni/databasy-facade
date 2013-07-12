@@ -1,37 +1,38 @@
 from flask import url_for, current_app
 from databasyfacade.db import dbs
 from databasyfacade.db.auth import User, Profile
+from databasyfacade.services import profiles_service
 from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
 
-def send_activation_mail(user):
-    token = tokens.create_token(tokens.EMAIL_CONFIRMATION_TOKEN_TYPE, user.id)
+def send_activation_mail(profile):
+    token = tokens.create_token(tokens.EMAIL_CONFIRMATION_TOKEN_TYPE, profile.user_id)
     callback_url = current_app.config['ENDPOINT'] + url_for('auth.activate').rstrip('/')
     confirmation_link = '%s/?token=%s' % (callback_url, token.hex)
-    user.send_mail('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
+    profile.send_mail('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
 
 def create_user(name, email, raw_password, active):
     """ Creates user and his profile. Send letter with email activation token. Newly-created user is not active.
     Returns:
-        new user.
+        profile of the new user.
     Raises:
         NoResultFound if user with this ID doesn't exist.
     """
     user = User()
-    user.name = name
-    user.set_email(email)
     user.set_password(raw_password)
     user.active = active
-    dbs().add(user)
-    dbs().flush()
 
     profile = Profile()
     profile.user = user
+    profile.name = name
+    profile.set_email(email)
+
+    dbs().add(user)
     dbs().add(profile)
     dbs().flush()
 
-    return user
+    return profile
 
 def activate_user(token_hex):
     """ Check email confirmation token and make account active if token is valid.
@@ -54,14 +55,14 @@ def email_exists(email):
     """
     return bool(dbs().query(User).filter_by(email_lower=email.lower()).count())
 
-def user_by_id(userid):
+def user_by_id(user_id):
     """ Retrieves user by ID.
     Returns:
         user.
     Raises:
         NoResultFound if user with this ID doesn't exist.
     """
-    return dbs().query(User).filter_by(id=userid).one()
+    return dbs().query(User).filter_by(id=user_id).one()
 
 def user_by_email(email):
     """ Retrieves user by email.

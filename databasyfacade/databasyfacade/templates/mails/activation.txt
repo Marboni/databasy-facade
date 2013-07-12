@@ -1,4 +1,4 @@
-Hello, {{ user_name }}!
+Hello, {{ username }}!
 
 Please, click on this link to confirm your registration on {{ site_name }}:
 

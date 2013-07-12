@@ -42,9 +42,11 @@ def uninstall(pkg):
 
 @relative
 def recreatedb(mode=None):
-    cmd = 'recreatedb'
-    if mode:
-        cmd += ' ' + mode
+    cmd = 'recreatedb' + (' ' + mode if mode else '')
+    local_manage(cmd)
+
+def recreatecache(mode=None):
+    cmd = 'recreatecache' + (' ' + mode if mode else '')
     local_manage(cmd)
 
 @relative
