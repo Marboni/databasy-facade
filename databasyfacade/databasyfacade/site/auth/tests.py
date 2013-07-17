@@ -2,7 +2,7 @@ from flask import url_for
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.services import auth_service, profiles_service
 from databasyfacade.testing import DatabasyTest, fixtures
-from databasyfacade.testing.fixtures import UserData
+from databasyfacade.testing.testdata import UserData, ProfileData
 from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
@@ -51,10 +51,10 @@ class AuthTest(DatabasyTest):
             self.assertAuthenticated()
 
 
-    @fixtures(UserData)
+    @fixtures(UserData, ProfileData)
     def test_login(self, data):
         response = self.client.post(url_for('auth.login'), data={
-            'email': UserData.hero.email,
+            'email': ProfileData.hero.email,
             'password': 'password'
         })
         self.assertRedirects(response, url_for('root.home'))
@@ -63,7 +63,7 @@ class AuthTest(DatabasyTest):
         self.logout()
 
         response = self.client.post(url_for('auth.login') + '?next=' + url_for('root.secure'), data={
-            'email': UserData.hero.email,
+            'email': ProfileData.hero.email,
             'password': 'password',
         })
         self.assertRedirects(response, url_for('root.secure'))

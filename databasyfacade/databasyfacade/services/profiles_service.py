@@ -1,6 +1,5 @@
-from databasyfacade.cache import c
 from databasyfacade.db import dbs
-from databasyfacade.db.auth import Profile
+from databasyfacade.db.auth import Profile, User
 
 __author__ = 'Marboni'
 
@@ -11,4 +10,4 @@ def profile(user_id):
     Raises:
         NoResultFound if profile not found.
     """
-    return dbs().query(Profile).filter_by(user_id=user_id).one()
+    return dbs().query(Profile).join(Profile.user).filter(User.id == user_id).one()

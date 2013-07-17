@@ -6,7 +6,7 @@ from flask import Flask
 from flask.ext.login import LoginManager
 import os
 from werkzeug.serving import run_simple
-from databasyfacade import config, db, cache
+from databasyfacade import config, db, rpc
 from databasyfacade.auth import load_user
 from databasyfacade.context_processor import context_processor
 
@@ -51,9 +51,6 @@ def init_context_processor(app):
 def init_db(app):
     db.init_engine(app.config['DATABASE_URI'], echo=app.config['DATABASE_ECHO'])
 
-def init_cache(app):
-    cache.init_cache(app.config['REDIS_URI'])
-
 def init_login_manager(app):
     login_manager = LoginManager()
     #noinspection PyTypeChecker
@@ -61,6 +58,9 @@ def init_login_manager(app):
     login_manager.login_view = app.config['LOGIN_VIEW']
     login_manager.login_message = app.config['LOGIN_MESSAGE']
     login_manager.init_app(app)
+
+def init_rpc(app):
+    rpc.init(app.config['ZMQ_ADDRESS'])
 
 def create_app():
     app = Flask('databasyfacade')
@@ -72,6 +72,7 @@ def create_app():
     init_context_processor(app)
     init_db(app)
     init_login_manager(app)
+    init_rpc(app)
 
     return app
 

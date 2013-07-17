@@ -26,10 +26,17 @@ from databasyfacade.db.auth import User   # Need to import it to give NamedDataS
 class UserData(DataSet):
     class hero:
         id = 1001L
-        name = 'Hero'
-        email = 'Hero@databasy.com'
         email_lower = 'hero@databasy.com'
         password = PASSWORD
         active = True
 
+
+#noinspection PyUnresolvedReferences
+from databasyfacade.db.auth import Profile   # Need to import it to give NamedDataStyle an opportunity to map it.
+class ProfileData(DataSet):
+    class hero:
+        id = 1001L
+        user_id = UserData.hero.id
+        name = 'Hero'
+        email = 'Hero@databasy.com'
 

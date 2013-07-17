@@ -4,6 +4,7 @@ from flask.ext.testing import TestCase
 import os
 from databasyfacade import app, db
 from databasyfacade.db import dbs
+from databasyfacade.rpc.engine import srv
 
 __author__ = 'Marboni'
 
@@ -17,16 +18,16 @@ class DatabasyTest(TestCase):
 
     def tearDown(self):
         dbs().rollback()
+        srv().unbind()
 
     @property
     def mail(self):
         from databasyfacade.utils.mail_sender import mail
-
         return mail
 
     def login(self, test_user):
         self.client.post(url_for('auth.login'), data={
-            'email': test_user.email,
+            'email': test_user.email_lower,
             'password': 'password'
         })
         if not self.is_authenticated():
@@ -49,7 +50,7 @@ class DatabasyTest(TestCase):
             self.fail('User is authenticated.')
 
 def fixtures(*datasets):
-    from databasyfacade.testing.fixtures import fixture
+    from databasyfacade.testing.testdata import fixture
     def decorator(function):
         @wraps(function)
         def wrapper(*args, **kwargs):

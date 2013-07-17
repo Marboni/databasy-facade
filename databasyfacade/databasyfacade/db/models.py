@@ -3,7 +3,7 @@ from flask import current_app
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey, Index
 from sqlalchemy.types import String, BigInteger, Enum, Boolean
-from databasyfacade.db import Base
+from databasyfacade.db.engine import Base
 from databasyfacade.db.auth import User
 
 __author__ = 'Marboni'

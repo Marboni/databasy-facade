@@ -33,7 +33,7 @@ class Config(object):
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy'
     DATABASE_ECHO = True
 
-    REDIS_URI = 'redis://localhost:6379/0'
+    ZMQ_ADDRESS = 'tcp://*:5555'
 
     SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMU'
 

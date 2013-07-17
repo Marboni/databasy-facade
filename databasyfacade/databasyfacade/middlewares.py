@@ -1,4 +1,4 @@
-from databasyfacade.db import dbs
+from databasyfacade.db import dbs, remove_session
 
 __author__ = 'Marboni'
 
@@ -14,3 +14,4 @@ class DbSessionMiddleware:
             raise
         finally:
             dbs().commit()
+            remove_session()

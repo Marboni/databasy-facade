@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey, Index
 from sqlalchemy.types import String, Integer, Boolean, BigInteger
 from flask import current_app, json
-from databasyfacade.db import Base
+from databasyfacade.db.engine import Base
 from pbkdf2 import crypt
 
 __author__ = 'Marboni'
