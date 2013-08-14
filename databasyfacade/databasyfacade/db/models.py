@@ -1,5 +1,4 @@
 from uuid import uuid4
-from flask import current_app
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey, Index
 from sqlalchemy.types import String, BigInteger, Enum, Boolean
@@ -15,7 +14,6 @@ DB_TYPES = [
 class ModelInfo(Base):
     __tablename__ = 'model_info'
 
-
     DATABASE_TYPE_ENUM = Enum(
         *(db_type_and_name[0] for db_type_and_name in DB_TYPES),
         name='DATABASE_TYPE'
@@ -25,15 +23,12 @@ class ModelInfo(Base):
     schema_name = Column(String(128), nullable=False)
     description = Column(String(1024))
     database_type = Column(DATABASE_TYPE_ENUM, nullable=False)
-    repo_server = Column(String(32), nullable=False)
     owner_id = Column(BigInteger, ForeignKey('usr.id'))
     owner = relationship(User, backref=backref("models", cascade='all'))
 
-    def full_path(self):
-        return 'http://%s.%s/models/%s' % (self.repo_server, current_app.config['DOMAIN'], self.id)
-
     def __repr__(self):
         return "<Model('%s')>" % self.name
+
 
 class ModelRole(Base):
     __tablename__ = 'model_role'
@@ -68,6 +63,7 @@ class ModelRole(Base):
 
     def includes(self, role):
         return self.role == role or role in (ModelRole.HIERARCHY.get(self.role) or [])
+
 
 class Invitation(Base):
     __tablename__ = 'invitation'

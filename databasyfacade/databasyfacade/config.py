@@ -41,7 +41,7 @@ class Config(object):
     MAIL_PORT = 587
     MAIL_USE_TLS = True
     MAIL_USERNAME = 'bmarchenko@databasy.com'
-    MAIL_PASSWORD = 'Todotowin'
+    MAIL_PASSWORD = 'Todotowin1099'
 
     ROBOT_EMAIL = 'Databasy.com <bmarchenko@databasy.com>'
 

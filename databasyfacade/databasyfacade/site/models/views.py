@@ -27,3 +27,9 @@ def new_model():
     return render_template('models/new_model.html',
         new_model_form = form
     )
+
+@bp.route('/<int:model_id>/')
+@login_required
+def model(model_id):
+    # Stub to call url_for. This URL will be handled on repo server.
+    pass

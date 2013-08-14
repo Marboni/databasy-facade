@@ -9,6 +9,7 @@ def own_models(user_id):
 def create_model(schema_name, description, database_type, owner_id):
     model = ModelInfo()
     model.schema_name = schema_name
+    model.database_type = database_type
     model.description = description
     model.owner_id = owner_id
 

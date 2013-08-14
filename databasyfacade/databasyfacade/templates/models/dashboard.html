@@ -20,7 +20,7 @@
                     {% for model in own_models %}
                         <tr class="model">
                             <td>
-                                <a href="{{ model.full_path() }}">{{ model.schema_name }}</a>
+                                <a href="{{ url_for('models.model', model_id=model.id) }}">{{ model.schema_name }}</a>
                                 <br/>
                                 <em class="muted">{{ model.description }}</em>
                             </td>
