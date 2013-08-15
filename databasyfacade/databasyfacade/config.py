@@ -66,7 +66,7 @@ class TestingConfig(Config):
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_testing'
 
-    REDIS_URI = 'redis://localhost:6379/1'
+    ZMQ_ADDRESS = 'tcp://*:6666'
 
 
 class StagingConfig(Config):
@@ -77,14 +77,10 @@ class StagingConfig(Config):
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_staging'
 
-    REDIS_URI = 'redis://localhost:6379/2'
-
 class ProductionConfig(Config):
     ENV = 'production'
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_production'
-
-    REDIS_URI = 'redis://localhost:6379/3'
 
 CONFIGS = [
     DevelopmentConfig,

@@ -7,7 +7,7 @@ __author__ = 'Marboni'
 class RpcTest(DatabasyTest):
     def setUp(self):
         super(RpcTest, self).setUp()
-        self.rpc = RpcClient('tcp://localhost:5555')
+        self.rpc = RpcClient('tcp://localhost:6666')
 
     def test_echo(self):
         for i in range(1000):
