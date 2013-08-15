@@ -3,6 +3,7 @@ from sqlalchemy import create_engine
 from databasyfacade import config
 import uuid
 from fixture import DataSet, SQLAlchemyFixture, NamedDataStyle
+from databasyfacade.db import models
 
 __author__ = 'Marboni'
 
@@ -40,3 +41,13 @@ class ProfileData(DataSet):
         name = 'Hero'
         email = 'Hero@databasy.com'
 
+
+#noinspection PyUnresolvedReferences
+from databasyfacade.db.models import ModelInfo   # Need to import it to give NamedDataStyle an opportunity to map it.
+class ModelInfoData(DataSet):
+    class psql:
+        id = 1001L
+        schema_name = 'Postgres'
+        description = 'PostgreSQL Schema'
+        database_type = models.DB_TYPES[0][0]
+        owner_id = UserData.hero.id

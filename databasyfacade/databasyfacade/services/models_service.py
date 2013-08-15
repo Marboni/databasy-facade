@@ -17,3 +17,6 @@ def create_model(schema_name, description, database_type, owner_id):
     dbs().flush()
 
     return model
+
+def model(model_id):
+    return dbs().query(ModelInfo).get(model_id)
