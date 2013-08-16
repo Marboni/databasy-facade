@@ -15,11 +15,14 @@ class RpcTest(DatabasyTest):
             self.assertEqual(i, echo)
 
     @fixtures(UserData, ProfileData)
-    def test_profile(self, data):
-        profile = self.rpc('profile', UserData.hero.id)
-        self.assertEqual(ProfileData.hero.email, profile.email)
-        profile = self.rpc('profile', -1)
-        self.assertIsNone(profile)
+    def test_user_info(self, data):
+        info = self.rpc('user_info', UserData.hero.id)
+        self.assertEqual(ProfileData.hero.user_id, info['user_id'])
+        self.assertEqual(ProfileData.hero.name, info['name'])
+        self.assertEqual(ProfileData.hero.email, info['email'])
+        self.assertEqual(UserData.hero.active, info['active'])
+        info = self.rpc('user_info', -1)
+        self.assertIsNone(info)
 
     @fixtures(UserData, ModelInfoData)
     def test_database_type(self, data):

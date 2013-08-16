@@ -13,6 +13,7 @@ def init(zmq_address):
     server = RpcServer(zmq_address)
     server.run()
 
+
 class RpcServer(object):
     def __init__(self, address):
         super(RpcServer, self).__init__()
@@ -26,20 +27,26 @@ class RpcServer(object):
         while True:
             body = self.socket.recv()
             request = pickle.loads(body)
-            func = getattr(api, request['func'])
-
             try:
-                result = func(*request['args'])
-            except Exception, e:
+                func = getattr(api, request['func'])
+            except AttributeError:
                 response = {
                     'status': 'ERROR',
-                    'error': e
+                    'error': ValueError('Function "%s" not exists.' % request['func'])
                 }
             else:
-                response = {
-                    'status': 'OK',
-                    'result': result
-                }
+                try:
+                    result = func(*request['args'])
+                except Exception, e:
+                    response = {
+                        'status': 'ERROR',
+                        'error': e
+                    }
+                else:
+                    response = {
+                        'status': 'OK',
+                        'result': result
+                    }
 
             response = pickle.dumps(response)
             self.socket.send(response)

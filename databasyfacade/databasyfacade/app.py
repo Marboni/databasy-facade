@@ -2,7 +2,7 @@ import functools
 from logging import StreamHandler, Formatter
 import logging
 import sys
-from flask import Flask
+from flask import Flask, current_app, request
 from flask.ext.login import LoginManager
 import os
 from werkzeug.serving import run_simple
@@ -51,8 +51,14 @@ def init_context_processor(app):
 def init_db(app):
     db.init_engine(app.config['DATABASE_URI'], echo=app.config['DATABASE_ECHO'])
 
+class PatchedLoginManager(LoginManager):
+    def _load_user(self):
+        if request.path.startswith(current_app.static_url_path):
+            return
+        super(PatchedLoginManager, self)._load_user()
+
 def init_login_manager(app):
-    login_manager = LoginManager()
+    login_manager = PatchedLoginManager()
     #noinspection PyTypeChecker
     login_manager.user_loader(load_user)
     login_manager.login_view = app.config['LOGIN_VIEW']

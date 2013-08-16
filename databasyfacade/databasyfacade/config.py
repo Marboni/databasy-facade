@@ -35,7 +35,7 @@ class Config(object):
 
     ZMQ_ADDRESS = 'tcp://*:5555'
 
-    SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMU'
+    SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMUG6cyNezEwrQMKgsg'
 
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587

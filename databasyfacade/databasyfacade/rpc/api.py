@@ -1,4 +1,5 @@
 from functools import wraps
+from flask.ext.login import UserMixin
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade import db
 from databasyfacade.services import profiles_service, models_service
@@ -19,14 +20,18 @@ def touch_db(func):
 def echo(msg):
     return msg
 
-
 @touch_db
-def profile(user_id):
+def user_info(user_id):
     try:
-        return profiles_service.profile(user_id)
+        profile = profiles_service.profile(user_id)
+        return {
+            'user_id': profile.user.id,
+            'name': profile.name,
+            'email': profile.email,
+            'active': profile.user.active
+        }
     except NoResultFound:
         return None
-
 
 @touch_db
 def database_type(model_id):
