@@ -1,7 +1,9 @@
 import time
+from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.mq import RpcClient
 from databasyfacade.mq.client import Subscriber
 from databasyfacade.mq.engine import pub_server
+from databasyfacade.services import models_service
 from databasyfacade.testing import DatabasyTest, fixtures
 from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData
 
@@ -33,6 +35,12 @@ class RpcTest(DatabasyTest):
         self.assertEqual(ModelInfoData.psql.database_type, db_type)
         db_type = self.rpc('database_type', -1)
         self.assertIsNone(db_type)
+
+    @fixtures(UserData, ModelInfoData)
+    def test_delete_model(self, data):
+        db_type = self.rpc('delete_model', ModelInfoData.psql.id)
+        self.assertRaises(NoResultFound, lambda: models_service.model(ModelInfoData.psql.id))
+        self.assertRaises(NoResultFound, lambda: self.rpc('delete_model', -1))
 
 
 class TestSubscriber(Subscriber):
