@@ -1,4 +1,7 @@
-from databasyfacade.rpc import RpcClient
+import time
+from databasyfacade.mq import RpcClient
+from databasyfacade.mq.client import Subscriber
+from databasyfacade.mq.engine import pub_server
 from databasyfacade.testing import DatabasyTest, fixtures
 from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData
 
@@ -30,3 +33,27 @@ class RpcTest(DatabasyTest):
         self.assertEqual(ModelInfoData.psql.database_type, db_type)
         db_type = self.rpc('database_type', -1)
         self.assertIsNone(db_type)
+
+
+class TestSubscriber(Subscriber):
+    def __init__(self):
+        super(TestSubscriber, self).__init__('tcp://localhost:6667')
+        self.message = None
+
+    def handle_echo(self, message):
+        self.message = message
+
+class PubSubTest(DatabasyTest):
+    def setUp(self):
+        super(PubSubTest, self).setUp()
+        self.sub1 = TestSubscriber()
+        self.sub1.run()
+
+        self.sub2 = TestSubscriber()
+        self.sub2.run()
+
+    def test_echo(self):
+        pub_server().publish('echo', 'Hello!')
+        time.sleep(0.5)
+
+        self.assertEqual('Hello!', self.sub1.message)

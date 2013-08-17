@@ -1,7 +1,7 @@
 from functools import wraps
-from flask.ext.login import UserMixin
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade import db
+from databasyfacade.db import dbs
 from databasyfacade.services import profiles_service, models_service
 
 __author__ = 'Marboni'
@@ -20,6 +20,7 @@ def touch_db(func):
 def echo(msg):
     return msg
 
+
 @touch_db
 def user_info(user_id):
     try:
@@ -33,6 +34,7 @@ def user_info(user_id):
     except NoResultFound:
         return None
 
+
 @touch_db
 def database_type(model_id):
     try:
@@ -40,3 +42,14 @@ def database_type(model_id):
         return model.database_type
     except NoResultFound:
         return None
+
+
+@touch_db
+def delete_model(model_id):
+    model = models_service.delete_model(model_id)
+    dbs().commit()
+    return {
+        'schema_name': model.schema_name,
+        'description': model.description,
+        'database_type': model.database_type
+    }

@@ -6,7 +6,7 @@ from flask import Flask, current_app, request
 from flask.ext.login import LoginManager
 import os
 from werkzeug.serving import run_simple
-from databasyfacade import config, db, rpc
+from databasyfacade import config, db, mq
 from databasyfacade.auth import load_user
 from databasyfacade.context_processor import context_processor
 
@@ -66,7 +66,7 @@ def init_login_manager(app):
     login_manager.init_app(app)
 
 def init_rpc(app):
-    rpc.init(app.config['ZMQ_ADDRESS'])
+    mq.init(app.config['RPC_PORT'], app.config['PUB_PORT'])
 
 def create_app():
     app = Flask('databasyfacade')

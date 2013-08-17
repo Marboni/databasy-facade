@@ -33,7 +33,8 @@ class Config(object):
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy'
     DATABASE_ECHO = True
 
-    ZMQ_ADDRESS = 'tcp://*:5555'
+    RPC_PORT = 5555
+    PUB_PORT = 5556
 
     SECRET_KEY = 'yxS3bDAEOF60OibRXbO5rcMUG6cyNezEwrQMKgsg'
 
@@ -66,7 +67,8 @@ class TestingConfig(Config):
 
     DATABASE_URI = 'postgresql://postgres:postgres@localhost/databasy_testing'
 
-    ZMQ_ADDRESS = 'tcp://*:6666'
+    RPC_PORT = 6666
+    PUB_PORT = 6667
 
 
 class StagingConfig(Config):

@@ -4,7 +4,7 @@ from flask.ext.testing import TestCase
 import os
 from databasyfacade import app, db
 from databasyfacade.db import dbs
-from databasyfacade.rpc.engine import srv
+from databasyfacade.mq.engine import rpc_server, pub_server
 
 __author__ = 'Marboni'
 
@@ -18,7 +18,8 @@ class DatabasyTest(TestCase):
 
     def tearDown(self):
         dbs().rollback()
-        srv().unbind()
+        rpc_server().unbind()
+        pub_server().unbind()
 
     @property
     def mail(self):
