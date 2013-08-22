@@ -21,28 +21,28 @@ class RpcTest(DatabasyTest):
 
     @fixtures(UserData, ProfileData)
     def test_user_info(self, data):
-        info = self.rpc('user_info', UserData.hero.id)
-        self.assertEqual(ProfileData.hero.user_id, info['user_id'])
-        self.assertEqual(ProfileData.hero.name, info['name'])
-        self.assertEqual(ProfileData.hero.email, info['email'])
-        self.assertEqual(UserData.hero.active, info['active'])
+        info = self.rpc('user_info', UserData.first.id)
+        self.assertEqual(ProfileData.first.user_id, info['user_id'])
+        self.assertEqual(ProfileData.first.name, info['name'])
+        self.assertEqual(ProfileData.first.email, info['email'])
+        self.assertEqual(UserData.first.active, info['active'])
         info = self.rpc('user_info', -1)
         self.assertIsNone(info)
 
     @fixtures(UserData, ModelInfoData)
     def test_database_type(self, data):
-        db_type = self.rpc('database_type', ModelInfoData.psql.id)
-        self.assertEqual(ModelInfoData.psql.database_type, db_type)
+        db_type = self.rpc('database_type', ModelInfoData.model_a.id)
+        self.assertEqual(ModelInfoData.model_a.database_type, db_type)
         db_type = self.rpc('database_type', -1)
         self.assertIsNone(db_type)
 
     @fixtures(UserData, ModelInfoData)
     def test_delete_model(self, data):
-        model_info = self.rpc('delete_model', ModelInfoData.psql.id)
-        self.assertEqual(ModelInfoData.psql.schema_name, model_info['schema_name'])
-        self.assertEqual(ModelInfoData.psql.description, model_info['description'])
-        self.assertEqual(ModelInfoData.psql.database_type, model_info['database_type'])
-        self.assertRaises(NoResultFound, lambda: models_service.model(ModelInfoData.psql.id))
+        model_info = self.rpc('delete_model', ModelInfoData.model_a.id)
+        self.assertEqual(ModelInfoData.model_a.schema_name, model_info['schema_name'])
+        self.assertEqual(ModelInfoData.model_a.description, model_info['description'])
+        self.assertEqual(ModelInfoData.model_a.database_type, model_info['database_type'])
+        self.assertRaises(NoResultFound, lambda: models_service.model(ModelInfoData.model_a.id))
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_model', -1))
 
 

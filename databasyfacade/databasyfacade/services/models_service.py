@@ -99,7 +99,8 @@ def join_to_model(target_model, inviting_user, users, role):
 
         topic = '%s shared model with you on %s' % (inviting_user.profile.name, current_app.config['SITE_NAME'])
 
-        user.send_mail_async(topic, 'mails/invitation_notification.txt',
+        user.profile.send_mail_async(topic, 'mails/invitation_notification.txt',
+            user_name=user.profile.name,
             inviting_user_name=inviting_user.profile.name,
             inviting_user_email=inviting_user.profile.email,
             schema_name=target_model.schema_name

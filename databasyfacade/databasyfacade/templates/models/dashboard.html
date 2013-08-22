@@ -10,7 +10,7 @@
 {% block content %}
     <div id="dashboard" class="container">
         <div class="row">
-            <a href="{{ url_for('models.new_model') }}" role="button" class="btn btn-success pull-right">New model</a>
+            <a id="newModelBtn" href="{{ url_for('models.new_model') }}" role="button" class="btn btn-success pull-right">New model</a>
         </div>
         <br/>
         {% if not owner_roles and not member_roles %}
@@ -20,7 +20,7 @@
                 <div class="well well-small account">
                     <span class="lead">Your models</span>
                 </div>
-                <table class="table table-hover models">
+                <table id="ownModels" class="table table-hover models">
                     {% for owner_role in owner_roles %}
                         {% set model = owner_role.model %}
                         <tr class="model">
@@ -43,7 +43,7 @@
                 <div class="well well-small account">
                     <span class="lead">Shared models</span>
                 </div>
-                <table class="table table-hover models">
+                <table id="sharedModels" class="table table-hover models">
                     {% for member_role in member_roles %}
                         {% set model = member_role.model %}
                         <tr class="model">

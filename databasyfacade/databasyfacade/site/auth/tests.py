@@ -47,6 +47,13 @@ class AuthTest(DatabasyTest):
             self.assertTrue('Boris' in message)
             self.assertTrue(callback_url in message)
 
+            inactive_login_response = self.client.post(url_for('auth.login'), data={
+                'email': user.email_lower,
+                'password': 'password'
+            })
+            self.assert_200(inactive_login_response)
+            self.assertNotAuthenticated()
+
             response = self.client.get(activation_link)
             self.assertRedirects(response, url_for('root.home'))
             self.assertAuthenticated()
@@ -95,7 +102,7 @@ class AuthTest(DatabasyTest):
     @fixtures(UserData, ProfileData)
     def test_login(self, data):
         response = self.client.post(url_for('auth.login'), data={
-            'email': ProfileData.hero.email,
+            'email': ProfileData.first.email,
             'password': 'password'
         })
         self.assertRedirects(response, url_for('root.home'))
@@ -104,7 +111,7 @@ class AuthTest(DatabasyTest):
         self.logout()
 
         response = self.client.post(url_for('auth.login') + '?next=' + url_for('root.secure'), data={
-            'email': ProfileData.hero.email,
+            'email': ProfileData.first.email,
             'password': 'password',
         })
         self.assertRedirects(response, url_for('root.secure'))
@@ -112,7 +119,7 @@ class AuthTest(DatabasyTest):
 
     @fixtures(UserData)
     def test_logout(self, data):
-        self.login(UserData.hero)
+        self.login(UserData.first)
 
         response = self.client.get(url_for('auth.logout'))
         self.assertRedirects(response, url_for('root.home'))

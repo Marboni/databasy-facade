@@ -99,32 +99,38 @@ def invite(model_id):
 
         # Remove team members emails.
         emails = emails - model_emails
-
-        # Remove emails of people that were invited before.
-        existing_invitations = models_service.invitations_by_model(model_id)
-        existing_invitation_emails = set(
-            (existing_invitation.email_lower for existing_invitation in existing_invitations if existing_invitation.active)
-        )
-        emails = emails - existing_invitation_emails
-
         if emails:
-            # Users that have no permissions to model, but registered on site.
-            existing_users = auth_service.users_by_email(emails)
-            if existing_users:
-                models_service.join_to_model(model, current_user, existing_users, role)
+            invitations_count = len(emails)
 
-                existing_user_emails = set((user.email_lower for user in existing_users))
-                emails = emails - existing_user_emails
+            # Remove emails of people that were invited before.
+            existing_invitations = models_service.invitations_by_model(model_id)
+            existing_invitation_emails = set(
+                (existing_invitation.email_lower for existing_invitation in existing_invitations if existing_invitation.active)
+            )
+            emails = emails - existing_invitation_emails
 
-            # Only not registered emails left in emails set.
-            sign_up_link = current_app.config['ENDPOINT'] + url_for('auth.sign_up')
-            models_service.invite_to_model(model, current_user, emails, role, sign_up_link)
+            if emails:
+                # Users that have no permissions to model, but registered on site.
+                existing_users = auth_service.users_by_email(emails)
+                if existing_users:
+                    models_service.join_to_model(model, current_user, existing_users, role)
 
-            flash('Invitations sent.', 'success')
+                    existing_user_emails = set((user.email_lower for user in existing_users))
+                    emails = emails - existing_user_emails
+
+                # Only not registered emails left in emails set.
+                sign_up_link = current_app.config['ENDPOINT'] + url_for('auth.sign_up')
+                models_service.invite_to_model(model, current_user, emails, role, sign_up_link)
+
+            if invitations_count == 1:
+                message = 'New member invited.'
+            else:
+                message = 'New members invited.'
+            flash(message, 'success')
 
             return redirect(url_for('models.team', model_id=model_id))
         else:
-            flash('All email owners are the team members or already invited.', 'warning')
+            flash('All email owners are the team members.', 'warning')
 
     return render_template('models/invite.html',
         model=model,
