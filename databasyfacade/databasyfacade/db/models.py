@@ -4,6 +4,7 @@ from sqlalchemy.schema import Column, ForeignKey, Index
 from sqlalchemy.types import String, BigInteger, Enum, Boolean
 from databasyfacade.db.engine import Base
 from databasyfacade.db.auth import User
+from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
 
@@ -80,7 +81,7 @@ class Invitation(Base):
     active = Column(Boolean, default=True)
 
     def __init__(self, model_id=None, email=None, role=None):
-        self.hex = uuid4().hex
         self.model_id = model_id
         self.email_lower = email.lower() if email else None
         self.role = role
+        self.hex = tokens.generate_hex()

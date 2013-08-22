@@ -15,6 +15,9 @@ EMAIL_CONFIRMATION_TOKEN_TYPE = 'email_confirmation'
 AUTH_TOKEN_TYPE = 'auth'
 PASSWORD_RESET_TOKEN_TYPE = 'password_reset'
 
+def generate_hex():
+    return uuid4().hex
+
 def create_token(type, user_id=None, params=None, expires_in=None):
     """ Creates token.
     Returns:
@@ -26,7 +29,7 @@ def create_token(type, user_id=None, params=None, expires_in=None):
         raise ValueError('Data must be a dict, not %s.' % type(params))
     if not params:
         params = {}
-    hex = uuid4().hex
+    hex = generate_hex()
     if expires_in:
         expiration_time = datetime.datetime.now() + datetime.timedelta(hours=expires_in)
         expires = time.mktime(expiration_time.timetuple())

@@ -4,6 +4,7 @@ from databasyfacade import config
 import uuid
 from fixture import DataSet, SQLAlchemyFixture, NamedDataStyle
 from databasyfacade.db import models
+from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
 
@@ -23,7 +24,7 @@ fixture = SQLAlchemyFixture(
 )
 
 #noinspection PyUnresolvedReferences
-from databasyfacade.db.auth import User   # Need to import it to give NamedDataStyle an opportunity to map it.
+from databasyfacade.db.auth import User
 class UserData(DataSet):
     class hero:
         id = 1001L
@@ -33,7 +34,7 @@ class UserData(DataSet):
 
 
 #noinspection PyUnresolvedReferences
-from databasyfacade.db.auth import Profile   # Need to import it to give NamedDataStyle an opportunity to map it.
+from databasyfacade.db.auth import Profile
 class ProfileData(DataSet):
     class hero:
         id = 1001L
@@ -43,7 +44,8 @@ class ProfileData(DataSet):
 
 
 #noinspection PyUnresolvedReferences
-from databasyfacade.db.models import ModelInfo   # Need to import it to give NamedDataStyle an opportunity to map it.
+from databasyfacade.db.models import ModelInfo, ModelRole
+
 class ModelInfoData(DataSet):
     class psql:
         id = 1001L
@@ -51,3 +53,16 @@ class ModelInfoData(DataSet):
         description = 'PostgreSQL Schema'
         database_type = models.DB_TYPES[0][0]
         owner_id = UserData.hero.id
+
+#noinspection PyUnresolvedReferences
+from databasyfacade.db.models import Invitation
+class InvitationData(DataSet):
+    class invitation:
+        id = 1001L
+        model_id = ModelInfoData.psql.id
+        email_lower = 'invited@databasy.com'
+        hex = tokens.generate_hex()
+        role = ModelRole.DEVELOPER
+        active = True
+
+
