@@ -5,6 +5,8 @@ from databasyfacade.services import auth_service
 __author__ = 'Marboni'
 
 class SignUpForm(Form):
+    invitation_hex = HiddenField('Invitation HEX', id='su_invitation_hex')
+
     name = TextField('Your name', [
         validators.Length(min=1, max=40)
     ], id='su_name')

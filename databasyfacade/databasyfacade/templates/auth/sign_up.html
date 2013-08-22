@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block js %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='facade/src/js/sign_up.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="span8 offset2">
+                <form id="signUpForm"  class="form-horizontal" action="{{ url_for('auth.sign_up') }}" method="post">
+                    <fieldset>
+                        <legend>Sign Up</legend>
+                        {% with form = sign_up_form %}
+                            {% include 'includes/form_fields.html' %}
+                        {% endwith %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-success">Sign Up</button>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

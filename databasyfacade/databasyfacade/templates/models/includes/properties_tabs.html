@@ -1,0 +1,8 @@
+<ul class="nav nav-tabs">
+    <li {% if active_tab == 'general' %}class="active"{% endif %}>
+        <a href="{{  url_for('models.properties', model_id=model.id) }}">General</a>
+    </li>
+    <li {% if active_tab == 'team' %}class="active"{% endif %}>
+        <a href="{{  url_for('models.team', model_id=model.id) }}">Team</a>
+    </li>
+</ul>

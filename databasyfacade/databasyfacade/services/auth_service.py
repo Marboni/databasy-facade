@@ -1,7 +1,6 @@
 from flask import url_for, current_app
 from databasyfacade.db import dbs
 from databasyfacade.db.auth import User, Profile
-from databasyfacade.services import profiles_service
 from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
@@ -72,3 +71,11 @@ def user_by_email(email):
         NoResultFound if user with this email doesn't exist.
     """
     return dbs().query(User).filter_by(email_lower=email.lower()).one()
+
+def users_by_email(emails):
+    """ Retrieves users with emails specified in list.
+    Returns:
+        users with emails specified in list, so number of users will be <= number of emails in list.
+    """
+    emails = (email.lower() for email in emails)
+    return dbs().query(User).filter(User.email_lower.in_(emails)).all()

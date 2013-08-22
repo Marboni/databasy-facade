@@ -1,5 +1,5 @@
 import threading
-from flask import render_template
+from flask import render_template, copy_current_request_context
 from flask import current_app
 from flask.ext.mail import Mail, Message
 
@@ -17,12 +17,11 @@ def create_massege(to_email, subject, template, from_email=None, **kwargs):
     body = body.encode('utf-8')
     return Message(subject, [to_email], body, sender=from_email)
 
-
+@copy_current_request_context
 def send(to_email, subject, template, from_email=None, **kwargs):
     message = create_massege(to_email, subject, template, from_email, **kwargs)
     mail.send(message)
 
 def send_async(to_email, subject, template, from_email=None, **kwargs):
-    message = create_massege(to_email, subject, template, from_email, **kwargs)
-    sender = threading.Thread(target=mail.send, args=(message,))
+    sender = threading.Thread(target=send, args=(to_email, subject, template, from_email), kwargs=kwargs)
     sender.start()

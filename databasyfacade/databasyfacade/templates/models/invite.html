@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Model "{{ model.schema_name }}" | Invitation{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="span8 offset2">
+                <form id="inviteForm" class="form-horizontal" action="{{ url_for('models.invite', model_id=model.id) }}" method="post">
+                    <fieldset>
+                        <legend>Invite new members</legend>
+                        {% with form = invite_form %}
+                            {% include 'includes/form_fields.html' %}
+                        {% endwith %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-success">Send invitations</button>
+                                <a href="{{ url_for('models.team', model_id=model.id) }}" class="btn">Cancel</a>
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

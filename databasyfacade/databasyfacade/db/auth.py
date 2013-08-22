@@ -2,7 +2,7 @@ from flask.ext.login import UserMixin
 
 __author__ = 'Marboni'
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.schema import Column, ForeignKey, Index
 from sqlalchemy.types import String, Integer, Boolean, BigInteger
 from flask import current_app, json
@@ -29,15 +29,15 @@ class User(Base, UserMixin):
         return self.active
 
     def __repr__(self):
-        return "<User('%s')>" % self.email
+        return "<User('%s')>" % self.email_lower
 
 
 class Profile(Base):
     __tablename__ = 'profile'
 
     id = Column(BigInteger, primary_key=True)
-    user_id = Column(BigInteger, ForeignKey('usr.id'), unique=True)
-    user = relationship('User', uselist=False)
+    user_id = Column(BigInteger, ForeignKey('usr.id', ondelete='CASCADE'), unique=True)
+    user = relationship('User', backref=backref('profile', uselist=False))
 
     name = Column(String(30), nullable=False)
     email = Column(String(50), unique=True, nullable=False)

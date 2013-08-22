@@ -38,7 +38,10 @@ class RpcTest(DatabasyTest):
 
     @fixtures(UserData, ModelInfoData)
     def test_delete_model(self, data):
-        db_type = self.rpc('delete_model', ModelInfoData.psql.id)
+        model_info = self.rpc('delete_model', ModelInfoData.psql.id)
+        self.assertEqual(ModelInfoData.psql.schema_name, model_info['schema_name'])
+        self.assertEqual(ModelInfoData.psql.description, model_info['description'])
+        self.assertEqual(ModelInfoData.psql.database_type, model_info['database_type'])
         self.assertRaises(NoResultFound, lambda: models_service.model(ModelInfoData.psql.id))
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_model', -1))
 

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Model "{{ model.schema_name }}" | Team{% endblock %}
+
+{% block content %}
+    <div id="team" class="container">
+        {% with active_tab = 'team' %}
+            {% include 'models/includes/properties_tabs.html' %}
+        {% endwith %}
+        <div class="clearfix">
+            <a href="{{ url_for('models.invite', model_id=model.id) }}" role="button"
+               class="btn btn-success pull-right">Invite</a>
+        </div>
+
+        <table class="table table-hover members">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th class="span2"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for model_role in model_roles %}
+                <tr class="member">
+                    <td>{{ model_role.user.profile.name }}</td>
+                    <td>{{ model_role.user.profile.email }}</td>
+                    <td>
+                        {% if model_role.role == 'owner' %}
+                            &#128081; <i>Owner</i>
+                        {% else %}
+                            <div class="btn-group">
+                                {% if model_role.role == 'developer' %}
+                                    <button class="btn btn-mini btn-info disabled" disabled="disabled">Developer</button>
+                                    <button class="btn btn-mini">Viewer</button>
+                                {% elif model_role.role == 'viewer' %}
+                                    <button class="btn btn-mini">Developer</button>
+                                    <button class="btn btn-mini btn-info disabled" disabled="disabled">Viewer</button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="pull-right memberActions">
+                            <a href="#" class="text-error">Remove</a>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

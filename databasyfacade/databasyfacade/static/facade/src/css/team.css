@@ -1,0 +1,7 @@
+#team table.members tr.member .memberActions {
+    display: none;
+}
+
+#team table.members tr.member:hover .memberActions {
+    display: block;
+}

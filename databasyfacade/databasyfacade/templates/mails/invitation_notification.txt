@@ -1,0 +1,7 @@
+Hello, {{ user_name }}!
+
+{{ inviting_user_name }} ({{ inviting_user_email }}) shared with you his model "{{ schema_name }}". Model is available
+on your dashboard.
+
+Regards,
+  {{ site_name }} Team.

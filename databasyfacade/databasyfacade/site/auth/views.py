@@ -1,12 +1,54 @@
 from flask import Blueprint, redirect, url_for, request, flash, render_template
 from flask.ext.login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
-from databasyfacade.services import auth_service
-from databasyfacade.site.auth.forms import LoginForm
+from werkzeug.datastructures import MultiDict
+from werkzeug.exceptions import NotFound
+from databasyfacade.services import auth_service, models_service
+from databasyfacade.site.auth.forms import LoginForm, SignUpForm
 
 __author__ = 'Marboni'
 
 bp = Blueprint('auth', __name__)
+
+@bp.route('/sign-up/', methods=['GET', 'POST'])
+def sign_up():
+    if current_user.is_authenticated():
+        return redirect(url_for('root.home'))
+
+    form = SignUpForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            if form.invitation_hex.data:
+                try:
+                    invitation = models_service.invitation_by_hex(form.invitation_hex.data)
+                except NoResultFound:
+                    raise NotFound
+                profile = auth_service.create_user(form.name.data, invitation.email_lower, form.password.data, True)
+                models_service.accept_invitations(profile.user)
+                login_user(profile.user, True)
+                return redirect(url_for('root.home'))
+            else:
+                profile = auth_service.create_user(form.name.data, form.email.data, form.password.data, False)
+                auth_service.send_activation_mail(profile)
+                return render_template('auth/sign_up_completion.html', email=request.form['email'])
+    else:
+        initial = MultiDict()
+        invitation_hex = request.values.get('invitation')
+        if invitation_hex:
+            try:
+                invitation = models_service.invitation_by_hex(invitation_hex)
+            except NoResultFound:
+                raise NotFound
+            else:
+                if invitation.active: # Invitation is correct.
+                    initial.add('invitation_hex', invitation_hex)
+                    initial.add('email', invitation.email_lower)
+                else:
+                    flash('Sorry, but your invitation has been cancelled.', 'warning')
+        form = SignUpForm(formdata=initial)
+    return render_template('auth/sign_up.html',
+        sign_up_form=form
+    )
 
 @bp.route('/login/', methods=['GET', 'POST'])
 def login():

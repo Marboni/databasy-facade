@@ -4,34 +4,25 @@
 
 {% block content %}
     <div id="properties" class="container">
-        <div class="tabbable">
-            <ul class="nav nav-tabs">
-                <li class="active"><a href="#general" data-toggle="tab">General</a></li>
-                <li><a href="#team" data-toggle="tab">Team</a></li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane active" id="general">
-                    <div class="row">
-                        <div class="span8 offset2">
-                            <form id="modelForm" class="form-horizontal" action="{{ url_for('models.properties', model_id=model.id) }}"
-                                  method="post">
-                                <fieldset>
-                                    {% with form = model_form %}
-                                        {% include 'includes/form_fields.html' %}
-                                    {% endwith %}
-                                    <div class="control-group">
-                                        <div class="controls">
-                                            <button type="submit" class="btn btn-success">Save</button>
-                                        </div>
-                                    </div>
-                                </fieldset>
-                            </form>
+        {% with active_tab = 'general' %}
+            {% include 'models/includes/properties_tabs.html' %}
+        {% endwith %}
+        <div class="row">
+            <div class="span8 offset2">
+                <form id="modelForm" class="form-horizontal"
+                      action="{{ url_for('models.properties', model_id=model.id) }}"
+                      method="post">
+                    <fieldset>
+                        {% with form = model_form %}
+                            {% include 'includes/form_fields.html' %}
+                        {% endwith %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn btn-success">Save</button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="tab-pane" id="team">
-                    <p>Howdy, I'm in Section 2.</p>
-                </div>
+                    </fieldset>
+                </form>
             </div>
         </div>
     </div>

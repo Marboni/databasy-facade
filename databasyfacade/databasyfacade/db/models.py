@@ -23,39 +23,37 @@ class ModelInfo(Base):
     schema_name = Column(String(128), nullable=False)
     description = Column(String(1024))
     database_type = Column(DATABASE_TYPE_ENUM, nullable=False)
-    owner_id = Column(BigInteger, ForeignKey('usr.id'))
-    owner = relationship(User, backref=backref("models", cascade='all'))
 
     def __repr__(self):
-        return "<Model('%s')>" % self.name
+        return "<Model('%s')>" % self.schema_name
 
 
 class ModelRole(Base):
     __tablename__ = 'model_role'
 
     __table_args__ = (
-        Index('ix_model_role_model_info_id_user_id', 'model_info_id', 'user_id'),
+        Index('ix_model_role_model_id_user_id', 'model_id', 'user_id'),
         )
 
-    ADMIN = 'admin'
+    OWNER = 'owner'
     DEVELOPER = 'developer'
     VIEWER = 'viewer'
 
     HIERARCHY = {
-        ADMIN: [DEVELOPER, VIEWER],
+        OWNER: [DEVELOPER, VIEWER],
         DEVELOPER: [VIEWER]
     }
 
     ROLES = [
-        ADMIN,
-        DEVELOPER,
-        VIEWER
+        (OWNER, 'Owner'),
+        (DEVELOPER, 'Developer'),
+        (VIEWER, 'Viewer')
     ]
 
-    MODEL_ROLE_ENUM = Enum(ADMIN, DEVELOPER, VIEWER, name='MODEL_ROLE')
+    MODEL_ROLE_ENUM = Enum(*[role[0] for role in ROLES], name='MODEL_ROLE')
 
     id = Column(BigInteger, primary_key=True)
-    model_info_id = Column(BigInteger, ForeignKey('model_info.id', ondelete='CASCADE'))
+    model_id = Column(BigInteger, ForeignKey('model_info.id', ondelete='CASCADE'))
     model = relationship(ModelInfo, backref=backref("model_roles", cascade='all', passive_deletes=True))
     user_id = Column(BigInteger, ForeignKey('usr.id'))
     user = relationship(User, backref=backref("model_roles", cascade='all'))
@@ -75,8 +73,8 @@ class Invitation(Base):
     id = Column(BigInteger, primary_key=True)
     email_lower = Column(String(50), nullable=False)
     # account_id = NULL and active = False if account was removed.
-    model_info_id = Column(BigInteger, ForeignKey('model_info.id'), nullable=True, index=True)
-    model_info = relationship(ModelInfo, backref=backref('invitations'))
+    model_id = Column(BigInteger, ForeignKey('model_info.id'), nullable=True, index=True)
+    model = relationship(ModelInfo, backref=backref('invitations'))
     role = Column(ModelRole.MODEL_ROLE_ENUM, nullable=False)
     hex = Column(String(32), unique=True)
     active = Column(Boolean, default=True)
