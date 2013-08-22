@@ -34,7 +34,7 @@ class ModelsTest(DatabasyTest):
         model_name_and_desc_cell = own_model_cells[0]
         # Model link.
         model_link = model_name_and_desc_cell.find('a')
-        self.assertEqual(ModelInfoData.model_a.schema_name, model_link.text)
+        self.assertEqual(ModelInfoData.model_a.schema_name, model_link.text_content())
         self.assertEqual(url_for('models.model', model_id=ModelInfoData.model_a.id), model_link.attrib.get('href'))
         # Model description.
         model_desc = model_name_and_desc_cell.find('em')
@@ -60,7 +60,7 @@ class ModelsTest(DatabasyTest):
         model_name_and_desc_cell = shared_model_cells[0]
         # Model link.
         model_link = model_name_and_desc_cell.find('a')
-        self.assertEqual(ModelInfoData.model_b.schema_name, model_link.text)
+        self.assertEqual(ModelInfoData.model_b.schema_name, model_link.text_content())
         self.assertEqual(url_for('models.model', model_id=ModelInfoData.model_b.id), model_link.attrib.get('href'))
         # Model description.
         model_desc = model_name_and_desc_cell.find('em')
