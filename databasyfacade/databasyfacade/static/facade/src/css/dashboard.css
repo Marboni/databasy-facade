@@ -3,6 +3,10 @@
     border-radius: 3px 3px 0 0;
 }
 
+#dashboard table.models {
+    margin-bottom: 0;
+}
+
 #dashboard table.models td {
     padding: 10px;
 }

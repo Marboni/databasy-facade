@@ -25,7 +25,7 @@
                         {% set model = owner_role.model %}
                         <tr class="model">
                             <td>
-                                <a href="{{ url_for('models.model', model_id=model.id) }}">{{ model.schema_name }}</a>
+                                <a href="{{ url_for('models.model', model_id=model.id) }}"><strong>{{ model.schema_name }}</strong></a>
                                 <br/>
                                 <em class="muted">{{ model.description }}</em>
                             </td>
@@ -48,7 +48,7 @@
                         {% set model = member_role.model %}
                         <tr class="model">
                             <td>
-                                <a href="{{ url_for('models.model', model_id=model.id) }}">{{ model.schema_name }}</a>
+                                <a href="{{ url_for('models.model', model_id=model.id) }}"><strong>{{ model.schema_name }}</strong></a>
                                 <br/>
                                 <em class="muted">{{ model.description }}</em>
                             </td>

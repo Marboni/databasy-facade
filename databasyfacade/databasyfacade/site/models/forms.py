@@ -1,6 +1,5 @@
 import re
 from wtforms import TextField, validators, SelectField, ValidationError, TextAreaField
-from wtforms.widgets import TextArea
 from databasyfacade.db import models
 from flask.ext.wtf import Form
 from databasyfacade.db.models import ModelRole

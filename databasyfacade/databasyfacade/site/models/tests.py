@@ -1,5 +1,8 @@
 from flask import url_for
 import lxml.html
+from databasyfacade.db import models
+from databasyfacade.db.models import ModelRole
+from databasyfacade.services import models_service
 from databasyfacade.testing import DatabasyTest, fixtures
 from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData, ModelRoleData
 
@@ -62,3 +65,25 @@ class ModelsTest(DatabasyTest):
         # Model description.
         model_desc = model_name_and_desc_cell.find('em')
         self.assertEqual(ModelInfoData.model_b.description, model_desc.text)
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
+    def test_new_model(self, data):
+        self.login(UserData.third)
+
+        db_type = models.DB_TYPES[0][0]
+        response = self.client.post(url_for('models.new_model'), data={
+            'schema_name': 'Schema',
+            'description': 'Schema description',
+            'database_type': db_type
+        })
+        self.assertRedirects(response, url_for('root.home'))
+        roles = models_service.user_roles(UserData.third.id)
+        self.assertEqual(1, len(roles))
+
+        owner_role = roles[0]
+        self.assertEqual(ModelRole.OWNER, owner_role.role)
+        model = owner_role.model
+        self.assertEqual('Schema', model.schema_name)
+        self.assertEqual('Schema description', model.description)
+        self.assertEqual(db_type, model.database_type)
+
