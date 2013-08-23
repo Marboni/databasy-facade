@@ -141,3 +141,9 @@ def invite(model_id):
         model=model,
         invite_form=form
     )
+
+@bp.route('/<int:model_id>/team/give-up/')
+@login_required
+def give_up(model_id):
+    # Stub to call url_for. This URL will be handled on repo server.
+    pass

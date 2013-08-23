@@ -9,7 +9,7 @@ def send_activation_mail(profile):
     token = tokens.create_token(tokens.EMAIL_CONFIRMATION_TOKEN_TYPE, profile.user_id)
     callback_url = current_app.config['ENDPOINT'] + url_for('auth.activate').rstrip('/')
     confirmation_link = '%s/?token=%s' % (callback_url, token.hex)
-    profile.send_mail('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
+    profile.send_mail_async('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
 
 def create_user(name, email, raw_password, active):
     """ Creates user and his profile. Send letter with email activation token. Newly-created user is not active.

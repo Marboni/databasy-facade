@@ -42,7 +42,7 @@ class ModelsTest(DatabasyTest):
         self.assertEqual(ModelInfoData.model_a.description, model_desc.text)
 
         model_links_cell = own_model_cells[1]
-        actions_div = model_links_cell.find_class('modelActions')[0]
+        actions_div = model_links_cell.find_class('ownModelActions')[0]
         properties_link = actions_div.xpath('a[contains(@class,"modelProperties")]')[0]
         self.assertEqual(url_for('models.properties', model_id=ModelInfoData.model_a.id), properties_link.attrib.get('href'))
         delete_link = actions_div.xpath('a[contains(@class,"deleteModel")]')[0]
@@ -56,7 +56,7 @@ class ModelsTest(DatabasyTest):
 
         shared_model_row = shared_model_rows[0]
         shared_model_cells = shared_model_row.findall('td')
-        self.assertEqual(1, len(shared_model_cells))
+        self.assertEqual(2, len(shared_model_cells))
 
         model_name_and_desc_cell = shared_model_cells[0]
         # Model link.
@@ -66,6 +66,13 @@ class ModelsTest(DatabasyTest):
         # Model description.
         model_desc = model_name_and_desc_cell.find('em')
         self.assertEqual(ModelInfoData.model_b.description, model_desc.text)
+
+        model_links_cell = shared_model_cells[1]
+        actions_div = model_links_cell.find_class('sharedModelActions')[0]
+        give_up_link = actions_div.xpath('a[contains(@class,"giveUp")]')[0]
+        self.assertEqual(ModelInfoData.model_b.schema_name, give_up_link.attrib.get('data-schemaname'))
+        self.assertEqual(str(ModelInfoData.model_b.id), give_up_link.attrib.get('data-modelid'))
+
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
     def test_new_model(self, data):

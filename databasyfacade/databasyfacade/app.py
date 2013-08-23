@@ -9,6 +9,7 @@ from werkzeug.serving import run_simple
 from databasyfacade import config, db, mq
 from databasyfacade.auth import load_user
 from databasyfacade.context_processor import context_processor
+from databasyfacade.utils import mail_sender
 
 __author__ = 'Marboni'
 
@@ -68,6 +69,9 @@ def init_login_manager(app):
 def init_rpc(app):
     mq.init(app.config['RPC_PORT'], app.config['PUB_PORT'])
 
+def init_mail(app):
+    mail_sender.mail.init_app(app)
+
 def create_app():
     app = Flask('databasyfacade')
     app.config.from_object(config.config_by_mode(os.environ.get('DATABASY_ENV')))
@@ -79,6 +83,7 @@ def create_app():
     init_db(app)
     init_login_manager(app)
     init_rpc(app)
+    init_mail(app)
 
     return app
 

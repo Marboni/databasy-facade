@@ -30,8 +30,9 @@
                                 <em class="muted">{{ model.description }}</em>
                             </td>
                             <td>
-                                <div class="pull-right onHoverSection modelActions">
+                                <div class="pull-right onHoverSection ownModelActions">
                                     <a class="modelProperties" href="{{ url_for('models.properties', model_id=model.id) }}">Properties</a>
+                                    &nbsp;|&nbsp;
                                     <a class="text-error deleteModel" href="#" data-modelid="{{ model.id }}" data-schemaname="{{ model.schema_name }}">Delete</a>
                                 </div>
                             </td>
@@ -52,6 +53,11 @@
                                 <br/>
                                 <em class="muted">{{ model.description }}</em>
                             </td>
+                            <td>
+                                <div class="pull-right onHoverSection sharedModelActions">
+                                    <a class="text-error giveUp" href="#" data-modelid="{{ model.id }}" data-schemaname="{{ model.schema_name }}">Give up</a>
+                                </div>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -65,11 +71,26 @@
             <h3 class="text-error">Danger is nearby!</h3>
         </div>
         <div class="modal-body">
-            <p><strong>Are you sure you want to remove model "<span id="deleteModelId"></span>"?</strong></p>
+            <p><strong>Are you sure you want to remove model "<span id="deleteModelSchema"></span>"?</strong></p>
         </div>
         <div class="modal-footer">
             <button id="deleteModelButton" class="btn btn-danger">Remove permanently</button>
             <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        </div>
+    </div>
+
+    <div id="giveUpModelDialog" class="modal hide fade" role="dialog" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h3>Leaving the team</h3>
+        </div>
+        <div class="modal-body">
+            <p><strong>Are you sure you want to leave the team of the model "<span id="giveUpModelSchema"></span>"?</strong></p>
+            <p>You will not be able to access and modify this model.</p>
+        </div>
+        <div class="modal-footer">
+            <button id="giveUpModelButton" class="btn btn-danger">Leave</button>
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Remain</button>
         </div>
     </div>
 {% endblock %}

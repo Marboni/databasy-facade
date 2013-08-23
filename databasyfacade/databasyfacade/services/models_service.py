@@ -56,8 +56,9 @@ def delete_model(model_id):
     Raises:
         NoResultFound if model not found.
     """
-    m = model(model_id)
     dbs().query(Invitation).filter_by(model_id=model_id, active=True).update({'active': False}, synchronize_session=False)
+    dbs().expire_all()
+    m = model(model_id)
     dbs().delete(m)
     return m
 
@@ -80,7 +81,18 @@ def model_roles(model_id):
     .order_by(ModelRole.role, Profile.name)\
     .all()
 
+def role(model_id, user_id):
+    """ Returns role.
+    Returns:
+       role.
+    Raises:
+        NoResultFound if role not found.
+    """
+    return dbs().query(ModelRole).filter_by(model_id=model_id, user_id=user_id).one()
+
 def join_to_model(target_model, inviting_user, users, role):
+    """ Joins existing users to the model, creating roles and sending notifications to email.
+    """
     for user in users:
         model_role = ModelRole()
         model_role.model_id = target_model.id
@@ -101,7 +113,18 @@ def join_to_model(target_model, inviting_user, users, role):
     dbs().flush()
 
 
+def give_up_model(model_id, user_id):
+    """ Takes off role.
+    """
+    role = dbs().query(ModelRole).filter_by(model_id=model_id, user_id=user_id).one()
+    if role.role == ModelRole.OWNER:
+        raise ValueError('Unable to give up role "Owner".')
+    dbs().delete(role)
+
+
 def invite_to_model(target_model, inviting_user, emails, role, sign_up_url):
+    """ Invite new people to become part of model's team, sending them letters with link, that allows sign up and join team.
+    """
     for email in emails:
         invitation = Invitation(target_model.id, email, role)
         dbs().add(invitation)

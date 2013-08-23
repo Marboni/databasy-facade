@@ -53,3 +53,8 @@ def delete_model(model_id):
         'description': model.description,
         'database_type': model.database_type
     }
+
+@touch_db
+def give_up_model(model_id, user_id):
+    models_service.give_up_model(model_id, user_id)
+    dbs().commit()
