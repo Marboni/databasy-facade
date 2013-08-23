@@ -20,14 +20,6 @@
     background-color: #fdfdfd;
 }
 
-#dashboard table.models tr.model .modelActions {
-    display: none;
-}
-
-#dashboard table.models tr.model:hover .modelActions {
-    display: block;
-}
-
 #dashboard table.models .modelActions a {
     margin-left: 10px;
 }

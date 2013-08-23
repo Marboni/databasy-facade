@@ -106,7 +106,7 @@ from databasyfacade.db.models import Invitation
 class InvitationData(DataSet):
     class invitation:
         id = 1001L
-        model_id = ModelInfoData.model_a.id
+        model_id = ModelInfoData.model_b.id
         email_lower = 'invited@databasy.com'
         hex = tokens.generate_hex()
         role = ModelRole.DEVELOPER

@@ -5,3 +5,11 @@ body {
 .modal form {
     margin: 0;
 }
+
+table tr .onHoverSection {
+    display: none;
+}
+
+table tr:hover .onHoverSection {
+    display: block;
+}

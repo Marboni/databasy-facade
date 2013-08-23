@@ -12,7 +12,7 @@
                class="btn btn-success pull-right">Invite</a>
         </div>
 
-        <table class="table table-hover members">
+        <table id="members" class="table table-hover">
             <thead>
             <tr>
                 <th>Name</th>
@@ -28,21 +28,15 @@
                     <td>{{ model_role.user.profile.email }}</td>
                     <td>
                         {% if model_role.role == 'owner' %}
-                            &#128081; <i>Owner</i>
+                            &#128081; <em>Owner</em>
                         {% else %}
-                            <div class="btn-group">
-                                {% if model_role.role == 'developer' %}
-                                    <button class="btn btn-mini btn-info disabled" disabled="disabled">Developer</button>
-                                    <button class="btn btn-mini">Viewer</button>
-                                {% elif model_role.role == 'viewer' %}
-                                    <button class="btn btn-mini">Developer</button>
-                                    <button class="btn btn-mini btn-info disabled" disabled="disabled">Viewer</button>
-                                {% endif %}
-                            </div>
+                            {% with selected_role=model_role.role, button_roles=member_roles %}
+                                {% include 'models/includes/role_switcher.html' %}
+                            {% endwith %}
                         {% endif %}
                     </td>
                     <td>
-                        <div class="pull-right memberActions">
+                        <div class="pull-right onHoverSection memberActions">
                             <a href="#" class="text-error">Remove</a>
                         </div>
                     </td>
@@ -50,5 +44,36 @@
             {% endfor %}
             </tbody>
         </table>
+
+        {% if invitations %}
+            <br/>
+            <h4>Pending invitations</h4>
+            <table id="invitations" class="table table-hover">
+                <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Future role</th>
+                    <th class="span2"></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for invitation in invitations %}
+                    <tr class="invitation">
+                        <td>{{ invitation.email_lower }}</td>
+                        <td>
+                            {% with selected_role=invitation.role, button_roles=member_roles %}
+                                {% include 'models/includes/role_switcher.html' %}
+                            {% endwith %}
+                        </td>
+                        <td>
+                            <div class="pull-right onHoverSection memberActions">
+                                <a href="#" class="text-error">Remove</a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
     </div>
 {% endblock %}

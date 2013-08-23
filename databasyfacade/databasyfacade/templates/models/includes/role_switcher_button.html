@@ -1,0 +1,4 @@
+<button
+        class="btn btn-mini {% if selected_role == btn_role %}btn-info disabled{% endif %}"
+        data-role="{{ btn_role }}"
+        {% if selected_role == btn_role %}disabled="disabled"{% endif %}>{{ btn_role_name }}</button>

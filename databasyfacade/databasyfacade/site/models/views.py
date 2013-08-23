@@ -74,10 +74,15 @@ def team(model_id):
         raise NotFound
 
     model_roles = models_service.model_roles(model_id)
+    invitations = models_service.invitations_by_model(model_id)
+
+    member_roles = [role for role in ModelRole.ROLES if role[0] != ModelRole.OWNER]
 
     return render_template('models/team.html',
         model=model,
         model_roles=model_roles,
+        invitations=invitations,
+        member_roles=member_roles
     )
 
 

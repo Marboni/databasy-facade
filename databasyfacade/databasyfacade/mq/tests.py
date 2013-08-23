@@ -5,7 +5,7 @@ from databasyfacade.mq.client import Subscriber
 from databasyfacade.mq.engine import pub_server
 from databasyfacade.services import models_service
 from databasyfacade.testing import DatabasyTest, fixtures
-from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData
+from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData, InvitationData, ModelRoleData
 
 __author__ = 'Marboni'
 
@@ -36,13 +36,18 @@ class RpcTest(DatabasyTest):
         db_type = self.rpc('database_type', -1)
         self.assertIsNone(db_type)
 
-    @fixtures(UserData, ModelInfoData)
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
     def test_delete_model(self, data):
-        model_info = self.rpc('delete_model', ModelInfoData.model_a.id)
-        self.assertEqual(ModelInfoData.model_a.schema_name, model_info['schema_name'])
-        self.assertEqual(ModelInfoData.model_a.description, model_info['description'])
-        self.assertEqual(ModelInfoData.model_a.database_type, model_info['database_type'])
-        self.assertRaises(NoResultFound, lambda: models_service.model(ModelInfoData.model_a.id))
+        model_id = ModelInfoData.model_b.id
+
+        model_info = self.rpc('delete_model', model_id)
+        self.assertEqual(ModelInfoData.model_b.schema_name, model_info['schema_name'])
+        self.assertEqual(ModelInfoData.model_b.description, model_info['description'])
+        self.assertEqual(ModelInfoData.model_b.database_type, model_info['database_type'])
+        self.assertRaises(NoResultFound, lambda: models_service.model(model_id))
+        self.assertFalse(models_service.model_roles(model_id))
+        self.assertFalse(models_service.invitation_by_hex(InvitationData.invitation.hex).active)
+
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_model', -1))
 
 

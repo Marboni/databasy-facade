@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template
+from flask import Blueprint, render_template
 from flask.ext.login import current_user, login_required
 from databasyfacade.services import auth_service
 from databasyfacade.site.models.views import dashboard

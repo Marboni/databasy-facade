@@ -30,7 +30,7 @@
                                 <em class="muted">{{ model.description }}</em>
                             </td>
                             <td>
-                                <div class="pull-right modelActions">
+                                <div class="pull-right onHoverSection modelActions">
                                     <a class="modelProperties" href="{{ url_for('models.properties', model_id=model.id) }}">Properties</a>
                                     <a class="text-error deleteModel" href="#" data-modelid="{{ model.id }}" data-schemaname="{{ model.schema_name }}">Delete</a>
                                 </div>

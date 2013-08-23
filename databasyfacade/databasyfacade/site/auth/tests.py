@@ -1,7 +1,7 @@
 import lxml.html
 from flask import url_for
 from sqlalchemy.orm.exc import NoResultFound
-from databasyfacade.services import auth_service, profiles_service
+from databasyfacade.services import auth_service, profiles_service, models_service
 from databasyfacade.testing import DatabasyTest, fixtures
 from databasyfacade.testing.testdata import UserData, ProfileData, InvitationData, ModelInfoData
 from databasyfacade.utils import tokens
@@ -70,13 +70,18 @@ class AuthTest(DatabasyTest):
         self.assert200(response)
         html = lxml.html.fromstring(response.data)
         form = html.forms[0]
-        self.assertEqual(InvitationData.invitation.hex, form.fields['invitation_hex'])
-        self.assertEqual(InvitationData.invitation.email_lower, form.fields['email'])
+
+        invitation_hex = form.fields['invitation_hex']
+
+        self.assertEqual(InvitationData.invitation.hex, invitation_hex)
+        email = form.fields['email']
+
+        self.assertEqual(InvitationData.invitation.email_lower, email)
 
         response = self.client.post(url_for('auth.sign_up'), data={
-            'invitation_hex': form.fields['invitation_hex'],
+            'invitation_hex': invitation_hex,
             'name': 'Boris',
-            'email': form.fields['email'],
+            'email': email,
             'password': 'password',
             'password_again': 'password'
         })
@@ -97,6 +102,15 @@ class AuthTest(DatabasyTest):
             self.assertEqual(InvitationData.invitation.email_lower, profile.email)
         except NoResultFound:
             self.fail('Profile not created.')
+
+        invitations = models_service.invitations_by_email(email)
+        self.assertFalse(invitations)
+
+        roles = models_service.user_roles(user.id)
+        self.assertEqual(1, len(roles))
+        role = roles[0]
+        self.assertEqual(InvitationData.invitation.model_id, role.model_id)
+        self.assertEqual(InvitationData.invitation.role, role.role)
 
 
     @fixtures(UserData, ProfileData)

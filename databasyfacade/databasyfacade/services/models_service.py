@@ -57,7 +57,7 @@ def delete_model(model_id):
         NoResultFound if model not found.
     """
     m = model(model_id)
-    dbs().query(Invitation).filter_by(model_id=m.id).update({'active': False})
+    dbs().query(Invitation).filter_by(model_id=model_id, active=True).update({'active': False}, synchronize_session=False)
     dbs().delete(m)
     return m
 
@@ -79,13 +79,6 @@ def model_roles(model_id):
     .filter(ModelRole.model_id == model_id)\
     .order_by(ModelRole.role, Profile.name)\
     .all()
-
-def invitations_by_model(model_id):
-    """ Returns invitations to specific model.
-    Returns:
-        list of invitations.
-    """
-    return dbs().query(Invitation).filter_by(model_id=model_id).all()
 
 def join_to_model(target_model, inviting_user, users, role):
     for user in users:
@@ -127,13 +120,6 @@ def invite_to_model(target_model, inviting_user, emails, role, sign_up_url):
         )
     dbs().flush()
 
-def invitation_by_hex(invitation_hex):
-    """ Returns invitation by hex.
-    Raises:
-        NoResultFound if no invitation with specific ID or HEX found.
-    """
-    return dbs().query(Invitation).filter_by(hex=invitation_hex).one()
-
 def accept_invitations(user):
     """ Search active user's invitations, creates roles to the models by them, then deletes invitations.
     """
@@ -156,27 +142,26 @@ def delete_invitations(email):
     """
     return dbs().query(Invitation).filter_by(email_lower=email.lower()).delete()
 
-#
-#
-#def invitations_by_account(account_id):
-#    """ Returns invitations to specific account.
-#Returns:
-#list of invitations.
-#"""
-#    return dbs().query(Invitation).filter_by(account_id=account_id).all()
-#
-#def invitations_by_email(email):
-#    """ Returns invitations for specific email.
-#Returns:
-#list of invitations.
-#"""
-#    return dbs().query(Invitation).filter_by(email_lower=email.lower()).all()
-#
+def invitation_by_hex(invitation_hex):
+    """ Returns invitation by hex.
+    Raises:
+        NoResultFound if no invitation with specific ID or HEX found.
+    """
+    return dbs().query(Invitation).filter_by(hex=invitation_hex).one()
 
-#
+def invitations_by_model(model_id):
+    """ Returns active invitations to specific model.
+    Returns:
+        list of invitations.
+    """
+    return dbs().query(Invitation).filter_by(model_id=model_id).all()
 
-#
-
+def invitations_by_email(email):
+    """ Returns invitations for specific email.
+    Returns:
+        list of invitations.
+    """
+    return dbs().query(Invitation).filter_by(email_lower=email.lower()).all()
 #
 #
 #def update_invitation(invitation_id, **kwargs):
