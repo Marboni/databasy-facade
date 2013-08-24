@@ -1,7 +1,12 @@
-<div class="btn-group roleSwitcher">
-    {% for btn_role, btn_role_name in button_roles %}
-        {% with selected_role=selected_role, btn_role=btn_role, btn_role_name=btn_role_name %}
-            {% include "models/includes/role_switcher_button.html" %}
-        {% endwith %}
-    {% endfor %}
+<div class="roleSwitcher" data-type={{ type }}>
+    <div class="btn-group">
+        {% for btn_role, btn_role_name in button_roles %}
+            {% with selected_role=selected_role, btn_role=btn_role, btn_role_name=btn_role_name, model_id=model_id, obj_id=obj_id %}
+                {% include "models/includes/role_switcher_button.html" %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+    <img class="progressIndicator" src="{{ url_for('static', filename='facade/src/img/preloader_16x16.png') }}" style="display: none;"/>
+    <img class="successIndicator" src="{{ url_for('static', filename='facade/src/img/ok_16x16.png') }}" style="display: none;"/>
+    <img class="errorIndicator" src="{{ url_for('static', filename='facade/src/img/error_16x16.png') }}" style="display: none;"/>
 </div>

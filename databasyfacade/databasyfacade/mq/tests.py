@@ -4,6 +4,7 @@ from databasyfacade.mq import RpcClient
 from databasyfacade.mq.client import Subscriber
 from databasyfacade.mq.engine import pub_server
 from databasyfacade.services import models_service
+from databasyfacade.services.errors import OwnerRoleModificationException
 from databasyfacade.testing import DatabasyTest, fixtures
 from databasyfacade.testing.testdata import UserData, ProfileData, ModelInfoData, InvitationData, ModelRoleData
 
@@ -60,7 +61,7 @@ class RpcTest(DatabasyTest):
         # Owner can't give up.
         model_id = ModelRoleData.first_owner_model_a.model_id
         user_id = ModelRoleData.first_owner_model_a.user_id
-        self.assertRaises(ValueError, lambda: self.rpc('delete_role', model_id, user_id))
+        self.assertRaises(OwnerRoleModificationException, lambda: self.rpc('delete_role', model_id, user_id))
 
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_role', -1, -1))
 

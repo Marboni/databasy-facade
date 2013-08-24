@@ -2,6 +2,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.db import dbs
 from databasyfacade.db.auth import User, Profile
 from databasyfacade.db.models import ModelInfo, ModelRole, Invitation
+from databasyfacade.services.errors import OwnerRoleModificationException
 
 __author__ = 'Marboni'
 
@@ -45,7 +46,7 @@ def update_model(model_id, **kwargs):
     Raises:
         NoResultFound if model not found.
     """
-    updated = dbs().query(ModelInfo).filter_by(id=model_id).update(kwargs, synchronize_session=False)
+    updated = dbs().query(ModelInfo).filter_by(id=model_id).update(kwargs, synchronize_session='fetch')
     if not updated:
         raise NoResultFound
 
@@ -56,8 +57,7 @@ def delete_model(model_id):
     Raises:
         NoResultFound if model not found.
     """
-    dbs().query(Invitation).filter_by(model_id=model_id, active=True).update({'active': False}, synchronize_session=False)
-    dbs().expire_all()
+    dbs().query(Invitation).filter_by(model_id=model_id, active=True).update({'active': False}, synchronize_session='fetch')
     m = model(model_id)
     dbs().delete(m)
     return m
@@ -90,17 +90,31 @@ def role(model_id, user_id):
     """
     return dbs().query(ModelRole).filter_by(model_id=model_id, user_id=user_id).one()
 
+def update_role(model_id, user_id, new_role):
+    """ Updates role.
+    Raises:
+        NoResultFound if role not found.
+        OwnerRoleModification if role is Owner.
+    """
+    if new_role == ModelRole.OWNER:
+        raise OwnerRoleModificationException
+    role_to_update = role(model_id, user_id)
+    if role_to_update.role == ModelRole.OWNER:
+        raise OwnerRoleModificationException
+    role_to_update.role = new_role
+    dbs().flush()
+
 def delete_role(model_id, user_id):
     """ Deletes role.
     Raises:
         NoResultFound if role not found.
-        ValueError if role is Owner.
+        OwnerRoleModification if role is Owner.
     Returns:
         removed role with joined user and profile.
     """
     role = dbs().query(ModelRole).join(User).join(Profile).filter(ModelRole.model_id==model_id, ModelRole.user_id==user_id).one()
     if role.role == ModelRole.OWNER:
-        raise ValueError('Unable to delete role "Owner".')
+        raise OwnerRoleModificationException
     dbs().delete(role)
     return role
 
@@ -203,7 +217,6 @@ def update_invitation(invitation_id, **kwargs):
     Raises:
         NoResultFound if unable to find invitation to update.
     """
-    updated = dbs().query(Invitation).filter_by(id=invitation_id).update(kwargs, synchronize_session=False)
+    updated = dbs().query(Invitation).filter_by(id=invitation_id).update(kwargs, synchronize_session='fetch')
     if not updated:
         raise NoResultFound
-    dbs().expire_all()

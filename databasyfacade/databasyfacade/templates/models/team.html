@@ -2,6 +2,11 @@
 
 {% block title %}Model "{{ model.schema_name }}" | Team{% endblock %}
 
+{% block js %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='facade/src/js/team.js') }}"></script>
+{% endblock %}
+
 {% block content %}
     <div id="team" class="container">
         {% with active_tab = 'team' %}
@@ -17,7 +22,7 @@
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Role</th>
+                <th class="span3">Role</th>
                 <th class="span2"></th>
             </tr>
             </thead>
@@ -30,7 +35,7 @@
                         {% if model_role.role == 'owner' %}
                             &#128081; <em>Owner</em>
                         {% else %}
-                            {% with selected_role=model_role.role, button_roles=member_roles %}
+                            {% with selected_role=model_role.role, button_roles=member_roles, model_id=model.id, obj_id=model_role.user.id, type='member' %}
                                 {% include 'models/includes/role_switcher.html' %}
                             {% endwith %}
                         {% endif %}
@@ -56,7 +61,7 @@
                 <thead>
                 <tr>
                     <th>Email</th>
-                    <th>Future role</th>
+                    <th class="span3">Future role</th>
                     <th class="span2"></th>
                 </tr>
                 </thead>
@@ -65,7 +70,7 @@
                     <tr class="invitation">
                         <td>{{ invitation.email_lower }}</td>
                         <td>
-                            {% with selected_role=invitation.role, button_roles=member_roles %}
+                            {% with selected_role=invitation.role, button_roles=member_roles, model_id=model.id, obj_id=invitation.id, type='invitation'%}
                                 {% include 'models/includes/role_switcher.html' %}
                             {% endwith %}
                         </td>

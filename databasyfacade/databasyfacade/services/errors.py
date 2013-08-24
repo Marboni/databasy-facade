@@ -1,4 +1,4 @@
 __author__ = 'Marboni'
 
-class InactiveUserError(Exception):
+class OwnerRoleModificationException(Exception):
     pass

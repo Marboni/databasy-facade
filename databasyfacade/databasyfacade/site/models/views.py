@@ -4,6 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import NotFound, BadRequest
 from databasyfacade.db.models import ModelRole
 from databasyfacade.services import models_service, auth_service
+from databasyfacade.services.errors import OwnerRoleModificationException
 from databasyfacade.site.models.forms import NewModelForm, ModelForm, InviteForm
 
 __author__ = 'Marboni'
@@ -156,9 +157,9 @@ def remove_member(model_id, user_id):
     try:
         removed_role = models_service.delete_role(model_id, user_id)
     except NoResultFound:
-        return NotFound
-    except ValueError:
-        return BadRequest
+        raise NotFound
+    except OwnerRoleModificationException:
+        raise BadRequest
     flash('You have removed %s from the team.' % removed_role.user.profile.name, 'success')
     return redirect(url_for('models.team', model_id=model_id))
 
@@ -169,9 +170,37 @@ def cancel_invitation(model_id, invitation_id):
     try:
         invitation = models_service.invitation(invitation_id)
         if invitation.model_id != model_id or not invitation.active:
-            return NotFound
+            raise NotFound
         models_service.update_invitation(invitation_id, active=False)
     except NoResultFound:
-        return NotFound
+        raise NotFound
     flash('You have cancelled the invitation sent to %s.' % invitation.email_lower, 'success')
     return redirect(url_for('models.team', model_id=model_id))
+
+
+@bp.route('/<int:model_id>/team/<int:user_id>/', methods=['POST'])
+@login_required
+def change_member_role(model_id, user_id):
+    role = request.form['role']
+    try:
+        models_service.update_role(model_id, user_id, role)
+    except NoResultFound:
+        raise NotFound
+    except OwnerRoleModificationException:
+        raise BadRequest
+    return 'OK'
+
+@bp.route('/<int:model_id>/team/invitations/<int:invitation_id>/', methods=['POST'])
+@login_required
+def change_invitation_role(model_id, invitation_id):
+    role = request.form['role']
+    if role not in (ModelRole.VIEWER, ModelRole.DEVELOPER):
+        raise BadRequest
+    try:
+        invitation = models_service.invitation(invitation_id)
+        if invitation.model_id != model_id or not invitation.active:
+            raise NotFound
+        models_service.update_invitation(invitation_id, role=role)
+    except NoResultFound:
+        raise NotFound
+    return 'OK'

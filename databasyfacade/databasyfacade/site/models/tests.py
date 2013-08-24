@@ -213,3 +213,43 @@ class ModelsTest(DatabasyTest):
         self.assertRedirects(response, url_for('models.team', model_id=model_id))
         invitation = models_service.invitation(invitation_id)
         self.assertFalse(invitation.active)
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
+    def test_change_member_role(self, data):
+        self.login(UserData.second)
+        model_id = ModelRoleData.first_developer_model_b.model_id
+        user_id = ModelRoleData.first_developer_model_b.user_id
+        response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id), data={
+            'role': ModelRole.VIEWER
+        })
+        self.assert_200(response)
+        self.assertEqual(ModelRole.VIEWER, models_service.role(model_id, user_id).role)
+
+        response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id), data={
+            'role': ModelRole.OWNER
+        })
+        self.assert_400(response)
+
+        model_id = ModelRoleData.second_owner_model_b.model_id
+        user_id = ModelRoleData.second_owner_model_b.user_id
+        response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id), data={
+            'role': ModelRole.VIEWER
+        })
+        self.assert_400(response)
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
+    def test_change_invitation_role(self, data):
+        self.login(UserData.second)
+        model_id = InvitationData.invitation.model_id
+        invitation_id = InvitationData.invitation.id
+
+        response = self.client.post(url_for('models.change_invitation_role', model_id=model_id, invitation_id=invitation_id), data={
+            'role': ModelRole.VIEWER
+        })
+        self.assert_200(response)
+        self.assertEqual(ModelRole.VIEWER, models_service.invitation(invitation_id).role)
+
+        response = self.client.post(url_for('models.change_invitation_role', model_id=model_id, invitation_id=invitation_id), data={
+            'role': ModelRole.OWNER
+        })
+        self.assert_400(response)
