@@ -90,6 +90,20 @@ def role(model_id, user_id):
     """
     return dbs().query(ModelRole).filter_by(model_id=model_id, user_id=user_id).one()
 
+def delete_role(model_id, user_id):
+    """ Deletes role.
+    Raises:
+        NoResultFound if role not found.
+        ValueError if role is Owner.
+    Returns:
+        removed role with joined user and profile.
+    """
+    role = dbs().query(ModelRole).join(User).join(Profile).filter(ModelRole.model_id==model_id, ModelRole.user_id==user_id).one()
+    if role.role == ModelRole.OWNER:
+        raise ValueError('Unable to delete role "Owner".')
+    dbs().delete(role)
+    return role
+
 def join_to_model(target_model, inviting_user, users, role):
     """ Joins existing users to the model, creating roles and sending notifications to email.
     """
@@ -111,15 +125,6 @@ def join_to_model(target_model, inviting_user, users, role):
             schema_name=target_model.schema_name
         )
     dbs().flush()
-
-
-def give_up_model(model_id, user_id):
-    """ Takes off role.
-    """
-    role = dbs().query(ModelRole).filter_by(model_id=model_id, user_id=user_id).one()
-    if role.role == ModelRole.OWNER:
-        raise ValueError('Unable to give up role "Owner".')
-    dbs().delete(role)
 
 
 def invite_to_model(target_model, inviting_user, emails, role, sign_up_url):

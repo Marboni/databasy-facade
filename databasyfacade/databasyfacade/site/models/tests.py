@@ -1,6 +1,7 @@
 from flask import url_for
 import lxml.html
 import time
+from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.db import models
 from databasyfacade.db.models import ModelRole
 from databasyfacade.services import models_service
@@ -193,3 +194,12 @@ class ModelsTest(DatabasyTest):
             self.assertTrue(ModelInfoData.model_b.schema_name in content)
             sign_up_link = self.app.config['ENDPOINT'] + url_for('auth.sign_up') + '?invitation=%s' % guest_invitation.hex
             self.assertTrue(sign_up_link in content)
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
+    def test_delete_role(self, data):
+        self.login(UserData.second)
+        model_id = ModelRoleData.first_developer_model_b.model_id
+        user_id = ModelRoleData.first_developer_model_b.user_id
+        response = self.client.get(url_for('models.remove_member', model_id=model_id, user_id=user_id))
+        self.assertRedirects(response, url_for('models.team', model_id=model_id))
+        self.assertRaises(NoResultFound, lambda: models_service.role(model_id, user_id))

@@ -37,7 +37,11 @@
                     </td>
                     <td>
                         <div class="pull-right onHoverSection memberActions">
-                            <a href="#" class="text-error">Remove</a>
+                            {% if model_role.role != 'owner' %}
+                                <a href="
+                                {{ url_for('models.remove_member', user_id=model_role.user_id, model_id=model_role.model_id) }}"
+                                   class="text-error">Remove</a>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
@@ -67,7 +71,7 @@
                         </td>
                         <td>
                             <div class="pull-right onHoverSection memberActions">
-                                <a href="#" class="text-error">Remove</a>
+                                <a href="#" class="text-error">Cancel</a>
                             </div>
                         </td>
                     </tr>

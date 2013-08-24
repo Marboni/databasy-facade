@@ -55,6 +55,6 @@ def delete_model(model_id):
     }
 
 @touch_db
-def give_up_model(model_id, user_id):
-    models_service.give_up_model(model_id, user_id)
+def delete_role(model_id, user_id):
+    models_service.delete_role(model_id, user_id)
     dbs().commit()

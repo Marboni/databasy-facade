@@ -51,18 +51,18 @@ class RpcTest(DatabasyTest):
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_model', -1))
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
-    def test_give_up_model(self, data):
+    def test_delete_role(self, data):
         model_id = ModelRoleData.first_developer_model_b.model_id
         user_id = ModelRoleData.first_developer_model_b.user_id
-        self.rpc('give_up_model', model_id, user_id)
+        self.rpc('delete_role', model_id, user_id)
         self.assertRaises(NoResultFound, lambda: models_service.role(model_id, user_id))
 
         # Owner can't give up.
         model_id = ModelRoleData.first_owner_model_a.model_id
         user_id = ModelRoleData.first_owner_model_a.user_id
-        self.assertRaises(ValueError, lambda: self.rpc('give_up_model', model_id, user_id))
+        self.assertRaises(ValueError, lambda: self.rpc('delete_role', model_id, user_id))
 
-        self.assertRaises(NoResultFound, lambda: self.rpc('give_up_model', -1, -1))
+        self.assertRaises(NoResultFound, lambda: self.rpc('delete_role', -1, -1))
 
 
 class TestSubscriber(Subscriber):

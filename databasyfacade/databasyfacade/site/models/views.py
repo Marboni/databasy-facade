@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, url_for, render_template, current_app, request, flash
 from flask.ext.login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, BadRequest
 from databasyfacade.db.models import ModelRole
 from databasyfacade.services import models_service, auth_service
 from databasyfacade.site.models.forms import NewModelForm, ModelForm, InviteForm
@@ -142,8 +142,22 @@ def invite(model_id):
         invite_form=form
     )
 
+
 @bp.route('/<int:model_id>/team/give-up/')
 @login_required
 def give_up(model_id):
     # Stub to call url_for. This URL will be handled on repo server.
     pass
+
+
+@bp.route('/<int:model_id>/team/remove/<int:user_id>/')
+@login_required
+def remove_member(model_id, user_id):
+    try:
+        removed_role = models_service.delete_role(model_id, user_id)
+    except NoResultFound:
+        return NotFound
+    except ValueError:
+        return BadRequest
+    flash('You have removed %s from the team.' % removed_role.user.profile.name, 'success')
+    return redirect(url_for('models.team', model_id=model_id))
