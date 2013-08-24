@@ -74,7 +74,7 @@ def team(model_id):
         raise NotFound
 
     model_roles = models_service.model_roles(model_id)
-    invitations = models_service.invitations_by_model(model_id)
+    invitations = models_service.active_invitations_by_model(model_id)
 
     member_roles = [role for role in ModelRole.ROLES if role[0] != ModelRole.OWNER]
 
@@ -108,7 +108,7 @@ def invite(model_id):
             invitations_count = len(emails)
 
             # Remove emails of people that were invited before.
-            existing_invitations = models_service.invitations_by_model(model_id)
+            existing_invitations = models_service.active_invitations_by_model(model_id)
             existing_invitation_emails = set(
                 (existing_invitation.email_lower for existing_invitation in existing_invitations if existing_invitation.active)
             )
@@ -150,7 +150,7 @@ def give_up(model_id):
     pass
 
 
-@bp.route('/<int:model_id>/team/remove/<int:user_id>/')
+@bp.route('/<int:model_id>/team/<int:user_id>/remove/')
 @login_required
 def remove_member(model_id, user_id):
     try:
@@ -160,4 +160,18 @@ def remove_member(model_id, user_id):
     except ValueError:
         return BadRequest
     flash('You have removed %s from the team.' % removed_role.user.profile.name, 'success')
+    return redirect(url_for('models.team', model_id=model_id))
+
+
+@bp.route('/<int:model_id>/team/invitations/<int:invitation_id>/remove/')
+@login_required
+def cancel_invitation(model_id, invitation_id):
+    try:
+        invitation = models_service.invitation(invitation_id)
+        if invitation.model_id != model_id or not invitation.active:
+            return NotFound
+        models_service.update_invitation(invitation_id, active=False)
+    except NoResultFound:
+        return NotFound
+    flash('You have cancelled the invitation sent to %s.' % invitation.email_lower, 'success')
     return redirect(url_for('models.team', model_id=model_id))

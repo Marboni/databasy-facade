@@ -170,7 +170,7 @@ class ModelsTest(DatabasyTest):
             else:
                 self.fail('Unable to find role for existent user that was invited to the model.')
 
-            invitations = models_service.invitations_by_model(model_id)
+            invitations = models_service.active_invitations_by_model(model_id)
             self.assertEqual(2, len(invitations))
 
             guest_invitation = models_service.invitations_by_email(guest_email)[0]
@@ -203,3 +203,13 @@ class ModelsTest(DatabasyTest):
         response = self.client.get(url_for('models.remove_member', model_id=model_id, user_id=user_id))
         self.assertRedirects(response, url_for('models.team', model_id=model_id))
         self.assertRaises(NoResultFound, lambda: models_service.role(model_id, user_id))
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
+    def test_cancel_invitation(self, data):
+        self.login(UserData.second)
+        invitation_id = InvitationData.invitation.id
+        model_id = InvitationData.invitation.model_id
+        response = self.client.get(url_for('models.cancel_invitation', model_id=model_id, invitation_id=invitation_id))
+        self.assertRedirects(response, url_for('models.team', model_id=model_id))
+        invitation = models_service.invitation(invitation_id)
+        self.assertFalse(invitation.active)

@@ -71,7 +71,9 @@
                         </td>
                         <td>
                             <div class="pull-right onHoverSection memberActions">
-                                <a href="#" class="text-error">Cancel</a>
+                                <a href="
+                                {{ url_for('models.cancel_invitation', model_id=model.id, invitation_id=invitation.id) }}"
+                                   class="text-error">Cancel</a>
                             </div>
                         </td>
                     </tr>

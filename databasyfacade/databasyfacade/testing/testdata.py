@@ -112,4 +112,12 @@ class InvitationData(DataSet):
         role = ModelRole.DEVELOPER
         active = True
 
+    class inactive_invitation:
+        id = 1002L
+        model_id = ModelInfoData.model_b.id
+        email_lower = 'invited_inactive@databasy.com'
+        hex = tokens.generate_hex()
+        role = ModelRole.DEVELOPER
+        active = False
+
 

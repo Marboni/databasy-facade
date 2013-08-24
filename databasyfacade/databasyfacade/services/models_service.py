@@ -170,19 +170,26 @@ def delete_invitations(email):
     """
     return dbs().query(Invitation).filter_by(email_lower=email.lower()).delete()
 
+def invitation(invitation_id):
+    """ Returns invitation by ID.
+    Raises:
+        NoResultFound if no invitation with specific ID found.
+    """
+    return dbs().query(Invitation).filter_by(id=invitation_id).one()
+
 def invitation_by_hex(invitation_hex):
     """ Returns invitation by hex.
     Raises:
-        NoResultFound if no invitation with specific ID or HEX found.
+        NoResultFound if no invitation with specific HEX found.
     """
     return dbs().query(Invitation).filter_by(hex=invitation_hex).one()
 
-def invitations_by_model(model_id):
+def active_invitations_by_model(model_id):
     """ Returns active invitations to specific model.
     Returns:
         list of invitations.
     """
-    return dbs().query(Invitation).filter_by(model_id=model_id).all()
+    return dbs().query(Invitation).filter_by(model_id=model_id, active=True).all()
 
 def invitations_by_email(email):
     """ Returns invitations for specific email.
@@ -190,24 +197,13 @@ def invitations_by_email(email):
         list of invitations.
     """
     return dbs().query(Invitation).filter_by(email_lower=email.lower()).all()
-#
-#
-#def update_invitation(invitation_id, **kwargs):
-#    """ Updates properties of the invitation.
-#Parameters:
-#invitation_id - ID of invitation to update.
-#kwargs - keys and values of properties to update.
-#Raises:
-#NoResultFound if unable to find invitation to update.
-#"""
-#    updated = dbs().query(Invitation).filter_by(id=invitation_id).update(kwargs, synchronize_session=False)
-#    if not updated:
-#        raise NoResultFound
-#
-#
-#def delete_invitations(email):
-#    """ Deletes invitation.
-#Returns:
-#number of removed invitations.
-#"""
-#    return dbs().query(Invitation).filter_by(email_lower=email.lower()).delete()
+
+def update_invitation(invitation_id, **kwargs):
+    """ Updates properties of the invitation.
+    Raises:
+        NoResultFound if unable to find invitation to update.
+    """
+    updated = dbs().query(Invitation).filter_by(id=invitation_id).update(kwargs, synchronize_session=False)
+    if not updated:
+        raise NoResultFound
+    dbs().expire_all()

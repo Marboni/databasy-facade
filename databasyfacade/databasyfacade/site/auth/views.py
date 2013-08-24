@@ -23,6 +23,9 @@ def sign_up():
                     invitation = models_service.invitation_by_hex(form.invitation_hex.data)
                 except NoResultFound:
                     raise NotFound
+                if not invitation.active:
+                    flash('Sorry, but your invitation has been cancelled.', 'warning')
+                    return redirect(url_for('auth.sign_up'))
                 profile = auth_service.create_user(form.name.data, invitation.email_lower, form.password.data, True)
                 models_service.accept_invitations(profile.user)
                 login_user(profile.user, True)
