@@ -55,6 +55,8 @@
                             </td>
                             <td>
                                 <div class="pull-right onHoverSection sharedModelActions">
+                                    <a class="modelProperties" href="{{ url_for('models.properties', model_id=model.id) }}">Properties</a>
+                                    &nbsp;|&nbsp;
                                     <a class="text-error giveUp" href="#" data-modelid="{{ model.id }}" data-schemaname="{{ model.schema_name }}">Give up</a>
                                 </div>
                             </td>

@@ -3,4 +3,4 @@
         data-role="{{ btn_role }}"
         data-modelid="{{ model_id }}"
         data-objid="{{ obj_id }}"
-        {% if selected_role == btn_role %}disabled="disabled"{% endif %}>{{ btn_role_name }}</button>
+        {% if selected_role == btn_role or not editable %}disabled="disabled"{% endif %}>{{ btn_role_name }}</button>

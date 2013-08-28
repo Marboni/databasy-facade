@@ -1,6 +1,5 @@
 from flask import url_for
 import lxml.html
-import time
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.db import models
 from databasyfacade.db.models import ModelRole
@@ -70,6 +69,8 @@ class ModelsTest(DatabasyTest):
 
         model_links_cell = shared_model_cells[1]
         actions_div = model_links_cell.find_class('sharedModelActions')[0]
+        properties_link = actions_div.xpath('a[contains(@class,"modelProperties")]')[0]
+        self.assertEqual(url_for('models.properties', model_id=ModelInfoData.model_b.id), properties_link.attrib.get('href'))
         give_up_link = actions_div.xpath('a[contains(@class,"giveUp")]')[0]
         self.assertEqual(ModelInfoData.model_b.schema_name, give_up_link.attrib.get('data-schemaname'))
         self.assertEqual(str(ModelInfoData.model_b.id), give_up_link.attrib.get('data-modelid'))
@@ -99,7 +100,16 @@ class ModelsTest(DatabasyTest):
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
     def test_model_properties(self, data):
         self.login(UserData.first)
-        model_id = ModelInfoData.model_a.id
+        model_id = ModelInfoData.model_b.id
+
+        # Developer can edit.
+        response = self.client.get(url_for('models.properties', model_id=model_id))
+        self.assert_200(response)
+        html = lxml.html.fromstring(response.data)
+        self.assertFalse('readonly' in html.xpath('//input[@id="nmf_schema_name"]')[0].attrib)
+        self.assertFalse('readonly' in html.xpath('//input[@id="nmf_description"]')[0].attrib)
+        self.assertTrue(html.xpath('//form[@id="modelForm"]//button[@type="submit"]'))
+
         response = self.client.post(url_for('models.properties', model_id=model_id), data={
             'schema_name': 'New name',
             'description': 'New description'
@@ -109,16 +119,37 @@ class ModelsTest(DatabasyTest):
         self.assertEqual('New name', model.schema_name)
         self.assertEqual('New description', model.description)
 
+        # Viewer can't edit, fields are disabled.
+        self.login(UserData.fourth)
+        response = self.client.get(url_for('models.properties', model_id=model_id))
+        self.assert_200(response)
+        html = lxml.html.fromstring(response.data)
+        self.assertTrue('readonly' in html.xpath('//input[@id="nmf_schema_name"]')[0].attrib)
+        self.assertTrue('readonly' in html.xpath('//input[@id="nmf_description"]')[0].attrib)
+        self.assertFalse(html.xpath('//form[@id="modelForm"]//button[@type="submit"]'))
+
+        model_id = ModelInfoData.model_b.id
+        response = self.client.post(url_for('models.properties', model_id=model_id), data={
+            'schema_name': 'New name',
+            'description': 'New description'
+        })
+        self.assert_401(response)
+
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
-    def test_team(self, data):
+    def test_team_for_owner(self, data):
         self.login(UserData.second)
-        response = self.client.get(url_for('models.team', model_id=ModelInfoData.model_b.id))
+
+        model_id = ModelInfoData.model_b.id
+
+        response = self.client.get(url_for('models.team', model_id=model_id))
         self.assert_200(response)
         html = lxml.html.fromstring(response.data)
 
+        self.assertTrue(html.xpath('//a[@id="inviteBtn"]'))
+
         ##### Model members #####
         member_rows = html.xpath('//table[@id="members"]//tbody//tr')
-        self.assertEqual(2, len(member_rows))
+        self.assertEqual(3, len(member_rows))
 
         owner_row = member_rows[0]
         owner_cells = owner_row.findall('td')
@@ -127,7 +158,8 @@ class ModelsTest(DatabasyTest):
         self.assertEqual(ProfileData.second.name, owner_cells[0].text)
         self.assertEqual(ProfileData.second.email, owner_cells[1].text)
         self.assertTrue('Owner' in owner_cells[2].text_content())
-        # TODO Check last column.
+        owner_member_actions = owner_cells[3].xpath('./div[contains(@class, "memberActions")]')[0]
+        self.assertFalse(owner_member_actions.xpath('./*'))
 
         developer_row = member_rows[1]
         developer_cells = developer_row.findall('td')
@@ -136,8 +168,8 @@ class ModelsTest(DatabasyTest):
         self.assertEqual(ProfileData.first.email, developer_cells[1].text)
         selected_role = developer_cells[2].xpath('.//button[@disabled="disabled"]')[0].attrib['data-role']
         self.assertEqual(ModelRoleData.first_developer_model_b.role, selected_role)
-        # TODO Check last column.
-
+        remove_member_action = developer_cells[3].xpath('.//a[contains(@class, "removeMember")]')[0]
+        self.assertEqual(url_for('models.remove_member', user_id=ProfileData.first.id, model_id=model_id), remove_member_action.attrib['href'])
 
         ##### Pending invitations #####
         invitation_rows = html.xpath('//table[@id="invitations"]//tbody//tr')
@@ -149,14 +181,55 @@ class ModelsTest(DatabasyTest):
         self.assertEqual(InvitationData.invitation.email_lower, invitation_cells[0].text)
         selected_role = invitation_cells[1].xpath('.//button[@disabled="disabled"]')[0].attrib['data-role']
         self.assertEqual(InvitationData.invitation.role, selected_role)
-        # TODO Check last column.
+        cancel_invitation_action = invitation_cells[2].xpath('.//a[contains(@class, "cancelInvitation")]')[0]
+        self.assertEqual(url_for('models.cancel_invitation', invitation_id=InvitationData.invitation.id, model_id=model_id), cancel_invitation_action.attrib['href'])
+
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
+    def test_team_for_developer(self, data):
+        self.login(UserData.first)
+
+        model_id = ModelInfoData.model_b.id
+
+        response = self.client.get(url_for('models.team', model_id=model_id))
+        self.assert_200(response)
+        html = lxml.html.fromstring(response.data)
+
+        self.assertFalse(html.xpath('//a[@id="inviteBtn"]'))
+
+        ##### Model members #####
+        member_rows = html.xpath('//table[@id="members"]//tbody//tr')
+        self.assertEqual(3, len(member_rows))
+
+        developer_row = member_rows[1]
+        developer_cells = developer_row.findall('td')
+        self.assertEqual(4, len(developer_cells))
+        self.assertFalse(developer_cells[3].xpath('.//a[contains(@class, "removeMember")]'))
+
+        ##### Pending invitations #####
+        invitation_rows = html.xpath('//table[@id="invitations"]//tbody//tr')
+        self.assertEqual(1, len(invitation_rows))
+
+        invitation_row = invitation_rows[0]
+        invitation_cells = invitation_row.findall('td')
+        self.assertEqual(3, len(invitation_cells))
+        self.assertFalse(invitation_cells[2].xpath('.//a[contains(@class, "cancelInvitation")]'))
+
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
     def test_invite(self, data):
+        model_id = ModelInfoData.model_b.id
+
+        self.login(UserData.first)
+        response = self.client.get(url_for('models.invite', model_id=model_id))
+        self.assert_401(response)
+
+        response = self.client.post(url_for('models.invite', model_id=model_id))
+        self.assert_401(response)
+
         self.login(UserData.second)
         guest_email = 'guest@example.com'
         with self.mail.record_messages() as outbox:
-            model_id = ModelInfoData.model_b.id
             self.client.post(url_for('models.invite', model_id=model_id), data={
                 'emails': ', '.join((ProfileData.second.email, InvitationData.invitation.email_lower, ProfileData.third.email,
                                      guest_email)),
@@ -197,8 +270,14 @@ class ModelsTest(DatabasyTest):
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
     def test_delete_role(self, data):
-        self.login(UserData.second)
         model_id = ModelRoleData.first_developer_model_b.model_id
+
+        self.login(UserData.first)
+        user_id = ModelRoleData.first_developer_model_b.user_id
+        response = self.client.get(url_for('models.remove_member', model_id=model_id, user_id=user_id))
+        self.assert_401(response)
+
+        self.login(UserData.second)
         user_id = ModelRoleData.first_developer_model_b.user_id
         response = self.client.get(url_for('models.remove_member', model_id=model_id, user_id=user_id))
         self.assertRedirects(response, url_for('models.team', model_id=model_id))
@@ -206,9 +285,14 @@ class ModelsTest(DatabasyTest):
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
     def test_cancel_invitation(self, data):
-        self.login(UserData.second)
-        invitation_id = InvitationData.invitation.id
         model_id = InvitationData.invitation.model_id
+        invitation_id = InvitationData.invitation.id
+
+        self.login(UserData.first)
+        response = self.client.get(url_for('models.cancel_invitation', model_id=model_id, invitation_id=invitation_id))
+        self.assert_401(response)
+
+        self.login(UserData.second)
         response = self.client.get(url_for('models.cancel_invitation', model_id=model_id, invitation_id=invitation_id))
         self.assertRedirects(response, url_for('models.team', model_id=model_id))
         invitation = models_service.invitation(invitation_id)
@@ -216,9 +300,14 @@ class ModelsTest(DatabasyTest):
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
     def test_change_member_role(self, data):
-        self.login(UserData.second)
         model_id = ModelRoleData.first_developer_model_b.model_id
         user_id = ModelRoleData.first_developer_model_b.user_id
+
+        self.login(UserData.first)
+        response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id))
+        self.assert_401(response)
+
+        self.login(UserData.second)
         response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id), data={
             'role': ModelRole.VIEWER
         })
@@ -239,10 +328,14 @@ class ModelsTest(DatabasyTest):
 
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData, InvitationData)
     def test_change_invitation_role(self, data):
-        self.login(UserData.second)
         model_id = InvitationData.invitation.model_id
         invitation_id = InvitationData.invitation.id
 
+        self.login(UserData.first)
+        response = self.client.post(url_for('models.change_invitation_role', model_id=model_id, invitation_id=invitation_id))
+        self.assert_401(response)
+
+        self.login(UserData.second)
         response = self.client.post(url_for('models.change_invitation_role', model_id=model_id, invitation_id=invitation_id), data={
             'role': ModelRole.VIEWER
         })

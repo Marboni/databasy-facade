@@ -2,6 +2,8 @@
 
 {% block title %}Model "{{ model.schema_name }}" | Properties{% endblock %}
 
+{% set is_developer = check_role(model.id, ModelRole.DEVELOPER) %}
+
 {% block content %}
     <div id="properties" class="container">
         {% with active_tab = 'general' %}
@@ -13,14 +15,16 @@
                       action="{{ url_for('models.properties', model_id=model.id) }}"
                       method="post">
                     <fieldset>
-                        {% with form = model_form %}
+                        {% with form = model_form, readonly=not is_developer %}
                             {% include 'includes/form_fields.html' %}
                         {% endwith %}
-                        <div class="control-group">
-                            <div class="controls">
-                                <button type="submit" class="btn btn-success">Save</button>
+                        {% if is_developer %}
+                            <div class="control-group">
+                                <div class="controls">
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </div>
                             </div>
-                        </div>
+                        {% endif %}
                     </fieldset>
                 </form>
             </div>

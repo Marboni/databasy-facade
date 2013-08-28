@@ -44,6 +44,12 @@ class UserData(DataSet):
         password = PASSWORD
         active = True
 
+    class fourth:
+        id = 1004L
+        email_lower = 'fourth@databasy.com'
+        password = PASSWORD
+        active = True
+
 
 #noinspection PyUnresolvedReferences
 from databasyfacade.db.auth import Profile
@@ -65,6 +71,12 @@ class ProfileData(DataSet):
         user_id = UserData.third.id
         name = 'Mr. Third'
         email = 'Third@databasy.com'
+
+    class fourth:
+        id = 1004L
+        user_id = UserData.fourth.id
+        name = 'Mr. Fourth'
+        email = 'Fourth@databasy.com'
 
 #noinspection PyUnresolvedReferences
 from databasyfacade.db.models import ModelInfo
@@ -100,6 +112,12 @@ class ModelRoleData(DataSet):
         model_id = ModelInfoData.model_b.id
         user_id = UserData.second.id
         role = ModelRole.OWNER
+
+    class fourth_viewer_model_b:
+        id = 1004L
+        model_id = ModelInfoData.model_b.id
+        user_id = UserData.fourth.id
+        role = ModelRole.VIEWER
 
 #noinspection PyUnresolvedReferences
 from databasyfacade.db.models import Invitation

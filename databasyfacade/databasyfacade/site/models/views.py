@@ -1,7 +1,8 @@
 from flask import Blueprint, redirect, url_for, render_template, current_app, request, flash
 from flask.ext.login import login_required, current_user
 from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
+from databasyfacade.auth import has_role, check_role
 from databasyfacade.db.models import ModelRole
 from databasyfacade.services import models_service, auth_service
 from databasyfacade.services.errors import OwnerRoleModificationException
@@ -45,7 +46,7 @@ def model(model_id):
 
 
 @bp.route('/<int:model_id>/properties/', methods=['GET', 'POST'])
-@login_required
+@has_role(ModelRole.VIEWER)
 def properties(model_id):
     try:
         model = models_service.model(model_id)
@@ -55,6 +56,8 @@ def properties(model_id):
     form = ModelForm(obj=model)
 
     if form.validate_on_submit():
+        if not check_role(model_id, ModelRole.DEVELOPER):
+            raise Unauthorized
         models_service.update_model(model_id,
             schema_name=form.schema_name.data,
             description=form.description.data
@@ -67,7 +70,7 @@ def properties(model_id):
 
 
 @bp.route('/<int:model_id>/team/', methods=['GET'])
-@login_required
+@has_role(ModelRole.VIEWER)
 def team(model_id):
     try:
         model = models_service.model(model_id)
@@ -88,7 +91,7 @@ def team(model_id):
 
 
 @bp.route('/<int:model_id>/team/invite/', methods=['GET', 'POST'])
-@login_required
+@has_role(ModelRole.OWNER)
 def invite(model_id):
     try:
         model = models_service.model(model_id)
@@ -152,7 +155,7 @@ def give_up(model_id):
 
 
 @bp.route('/<int:model_id>/team/<int:user_id>/remove/')
-@login_required
+@has_role(ModelRole.OWNER)
 def remove_member(model_id, user_id):
     try:
         removed_role = models_service.delete_role(model_id, user_id)
@@ -165,7 +168,7 @@ def remove_member(model_id, user_id):
 
 
 @bp.route('/<int:model_id>/team/invitations/<int:invitation_id>/remove/')
-@login_required
+@has_role(ModelRole.OWNER)
 def cancel_invitation(model_id, invitation_id):
     try:
         invitation = models_service.invitation(invitation_id)
@@ -179,7 +182,7 @@ def cancel_invitation(model_id, invitation_id):
 
 
 @bp.route('/<int:model_id>/team/<int:user_id>/', methods=['POST'])
-@login_required
+@has_role(ModelRole.OWNER)
 def change_member_role(model_id, user_id):
     role = request.form['role']
     try:
@@ -191,7 +194,7 @@ def change_member_role(model_id, user_id):
     return 'OK'
 
 @bp.route('/<int:model_id>/team/invitations/<int:invitation_id>/', methods=['POST'])
-@login_required
+@has_role(ModelRole.OWNER)
 def change_invitation_role(model_id, invitation_id):
     role = request.form['role']
     if role not in (ModelRole.VIEWER, ModelRole.DEVELOPER):

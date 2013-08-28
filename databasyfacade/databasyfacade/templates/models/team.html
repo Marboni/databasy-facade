@@ -7,15 +7,19 @@
     <script src="{{ url_for('static', filename='facade/src/js/team.js') }}"></script>
 {% endblock %}
 
+{% set is_owner = check_role(model.id, ModelRole.OWNER) %}
+
 {% block content %}
     <div id="team" class="container">
         {% with active_tab = 'team' %}
             {% include 'models/includes/properties_tabs.html' %}
         {% endwith %}
-        <div class="clearfix">
-            <a href="{{ url_for('models.invite', model_id=model.id) }}" role="button"
-               class="btn btn-success pull-right">Invite</a>
-        </div>
+        {% if is_owner %}
+            <div class="clearfix">
+                <a id="inviteBtn" href="{{ url_for('models.invite', model_id=model.id) }}" role="button"
+                   class="btn btn-success pull-right">Invite</a>
+            </div>
+        {% endif %}
 
         <table id="members" class="table table-hover">
             <thead>
@@ -35,17 +39,16 @@
                         {% if model_role.role == 'owner' %}
                             &#128081; <em>Owner</em>
                         {% else %}
-                            {% with selected_role=model_role.role, button_roles=member_roles, model_id=model.id, obj_id=model_role.user.id, type='member' %}
+                            {% with selected_role=model_role.role, button_roles=member_roles, model_id=model.id, obj_id=model_role.user.id, type='member', editable=is_owner %}
                                 {% include 'models/includes/role_switcher.html' %}
                             {% endwith %}
                         {% endif %}
                     </td>
                     <td>
                         <div class="pull-right onHoverSection memberActions">
-                            {% if model_role.role != 'owner' %}
-                                <a href="
-                                {{ url_for('models.remove_member', user_id=model_role.user_id, model_id=model_role.model_id) }}"
-                                   class="text-error">Remove</a>
+                            {% if model_role.role != 'owner' and is_owner %}
+                                <a href="{{ url_for('models.remove_member', user_id=model_role.user_id, model_id=model_role.model_id) }}"
+                                   class="text-error removeMember">Remove</a>
                             {% endif %}
                         </div>
                     </td>
@@ -70,15 +73,16 @@
                     <tr class="invitation">
                         <td>{{ invitation.email_lower }}</td>
                         <td>
-                            {% with selected_role=invitation.role, button_roles=member_roles, model_id=model.id, obj_id=invitation.id, type='invitation'%}
+                            {% with selected_role=invitation.role, button_roles=member_roles, model_id=model.id, obj_id=invitation.id, type='invitation', editable=is_owner %}
                                 {% include 'models/includes/role_switcher.html' %}
                             {% endwith %}
                         </td>
                         <td>
-                            <div class="pull-right onHoverSection memberActions">
-                                <a href="
-                                {{ url_for('models.cancel_invitation', model_id=model.id, invitation_id=invitation.id) }}"
-                                   class="text-error">Cancel</a>
+                            <div class="pull-right onHoverSection invitationActions">
+                                {% if is_owner %}
+                                    <a href="{{ url_for('models.cancel_invitation', model_id=model.id, invitation_id=invitation.id) }}"
+                                       class="text-error cancelInvitation">Cancel</a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
