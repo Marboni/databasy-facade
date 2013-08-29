@@ -54,7 +54,17 @@ def delete_model(model_id):
         'database_type': model.database_type
     }
 
+
 @touch_db
 def delete_role(model_id, user_id):
     models_service.delete_role(model_id, user_id)
     dbs().commit()
+
+
+@touch_db
+def role(model_id, user_id):
+    try:
+        r = models_service.role(model_id, user_id)
+    except NoResultFound:
+        return None
+    return r.role

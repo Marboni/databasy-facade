@@ -1,5 +1,6 @@
 import time
 from sqlalchemy.orm.exc import NoResultFound
+from databasyfacade.db.models import ModelRole
 from databasyfacade.mq import RpcClient
 from databasyfacade.mq.client import Subscriber
 from databasyfacade.mq.engine import pub_server
@@ -64,6 +65,15 @@ class RpcTest(DatabasyTest):
         self.assertRaises(OwnerRoleModificationException, lambda: self.rpc('delete_role', model_id, user_id))
 
         self.assertRaises(NoResultFound, lambda: self.rpc('delete_role', -1, -1))
+
+    @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
+    def test_role(self, data):
+        dev_role = ModelRoleData.first_developer_model_b
+        role = self.rpc('role', dev_role.model_id, dev_role.user_id)
+        self.assertEqual(ModelRole.DEVELOPER, role)
+
+        role = self.rpc('role', -1, -1)
+        self.assertIsNone(role)
 
 
 class TestSubscriber(Subscriber):
