@@ -2,9 +2,10 @@ from flask import Blueprint, redirect, url_for, request, flash, render_template
 from flask.ext.login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.datastructures import MultiDict
-from werkzeug.exceptions import NotFound
-from databasyfacade.services import auth_service, models_service
-from databasyfacade.site.auth.forms import LoginForm, SignUpForm
+from werkzeug.exceptions import NotFound, Unauthorized
+from databasyfacade.services import auth_service, models_service, profiles_service
+from databasyfacade.site.auth.forms import LoginForm, SignUpForm, ResetPasswordForm, ChangePasswordForm
+from databasyfacade.utils import tokens
 
 __author__ = 'Marboni'
 
@@ -111,3 +112,70 @@ def logout():
     if current_user.is_authenticated():
         logout_user()
     return redirect(url_for('root.home'))
+
+@bp.route('/reset-password/', methods=['GET', 'POST'])
+def reset_password():
+    if current_user.is_authenticated():
+        logout_user()
+    form = ResetPasswordForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            try:
+                user = auth_service.user_by_username_or_email(form.email.data)
+            except NoResultFound:
+                form.email.errors = ['User with this email doesn\'t exist.']
+            else:
+                if user.active:
+                    profile = profiles_service.profile(user.id)
+                    auth_service.send_password_reset_mail(profile)
+                    flash('We sent a letter that will allow you to change your password. Please check your mailbox.', 'success')
+                    return redirect(url_for('auth.login'))
+                else:
+                    form.email.errors = ['This email address is not confirmed. Please, confirm it first.']
+    else:
+        initial = MultiDict()
+        email = request.values.get('email')
+        if email:
+            initial.add('email', email)
+        form = ResetPasswordForm(formdata=initial)
+    return render_template('auth/reset_password.html',
+        reset_password_form=form)
+
+@bp.route('/change-password/', methods=['GET', 'POST'])
+def change_password():
+    user = current_user
+    form = ChangePasswordForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            token_hex = form.token.data
+            if token_hex:
+                token = tokens.retrieve_token(token_hex, tokens.PASSWORD_RESET_TOKEN_TYPE)
+                if not token:
+                    raise NotFound
+                user = auth_service.reset_password(token, form.new_password.data)
+                login_user(user, True)
+                flash('Password changed.', 'success')
+                return redirect(url_for('root.home'))
+            else:
+                if not user.is_authenticated():
+                    raise Unauthorized
+                if user.check_password(form.old_password.data):
+                    auth_service.change_password(user.id, form.new_password.data)
+                    flash('Password changed.', 'success')
+                    return redirect(url_for('root.home'))
+                else:
+                    form.old_password.errors = ['Incorrect password.']
+    else:
+        initial = MultiDict()
+        token_hex = request.values.get('token')
+        if token_hex:
+            if tokens.retrieve_token(token_hex, tokens.PASSWORD_RESET_TOKEN_TYPE):
+                initial.add('token', token_hex)
+            else:
+                raise NotFound
+        else:
+            if not user.is_authenticated():
+                raise Unauthorized
+        form = ChangePasswordForm(formdata=initial)
+    return render_template('auth/change_password.html',
+        change_password_form=form)

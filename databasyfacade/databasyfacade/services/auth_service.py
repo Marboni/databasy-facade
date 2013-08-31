@@ -12,6 +12,12 @@ def send_activation_mail(profile):
     confirmation_link = '%s/?token=%s' % (callback_url, token.hex)
     profile.send_mail_async('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
 
+def send_password_reset_mail(profile):
+    token = tokens.create_token(tokens.PASSWORD_RESET_TOKEN_TYPE, profile.user_id, expires_in=48)
+    callback_url = current_app.config['ENDPOINT'] + url_for('auth.change_password').rstrip('/')
+    reset_password_link = '%s/?token=%s' % (callback_url, token.hex)
+    profile.send_mail_async('Reset Password', 'mails/password_reset.txt', user_name=profile.user.username, reset_password_link=reset_password_link)
+
 def create_user(username, email, raw_password, active):
     """ Creates user and his profile. Send letter with email activation token. Newly-created user is not active.
     Returns:
@@ -47,6 +53,29 @@ def activate_user(token_hex):
         user = user_by_id(token.user_id)
         user.active = True
         return user
+
+def reset_password(token, new_password):
+    """ Changes user's password using token.
+    Raises:
+        NoResultFound if user with this ID doesn't exist.
+    Returns:
+        user with the new password.
+    """
+    user = change_password(token.user_id, new_password)
+    tokens.delete_token(token.hex, tokens.PASSWORD_RESET_TOKEN_TYPE)
+    return user
+
+def change_password(user_id, new_password):
+    """ Changes user's password.
+    Raises:
+        NoResultFound if user with this ID doesn't exist.
+    Returns:
+        user with the new password.
+    """
+    user = user_by_id(user_id)
+    user.set_password(new_password)
+    dbs().flush()
+    return user
 
 def username_exists(username):
     """ Returns if user with specified username exists.

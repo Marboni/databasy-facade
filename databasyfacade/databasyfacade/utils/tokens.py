@@ -12,7 +12,6 @@ __author__ = 'Marboni'
 TOKEN_HEX_REGEXP = re.compile(r'[0-9a-f]{32}')
 
 EMAIL_CONFIRMATION_TOKEN_TYPE = 'email_confirmation'
-AUTH_TOKEN_TYPE = 'auth'
 PASSWORD_RESET_TOKEN_TYPE = 'password_reset'
 
 def generate_hex():
@@ -20,6 +19,11 @@ def generate_hex():
 
 def create_token(type, user_id=None, params=None, expires_in=None):
     """ Creates token.
+    Arguments:
+        type - token type.
+        user_id - ID of user related with this token.
+        params - dictionary of custom parameters.
+        expires_in - expiration time in hours.
     Returns:
         newly-created token.
     """
@@ -71,8 +75,11 @@ def retrieve_token(hex, type=None, user_id=None):
     except NoResultFound:
         return None
 
-def user_tokens(user_id):
-    return dbs().query(Token).filter_by(user_id=user_id).all()
+def user_tokens(user_id, type=None):
+    criterion = [Token.user_id == user_id]
+    if type:
+        criterion.append(Token.type == type)
+    return dbs().query(Token).filter(*criterion).all()
 
 def delete_token(hex, type=None):
     """ Deletes token.

@@ -44,7 +44,8 @@ class AuthTest(DatabasyTest):
             activation_link = '/auth/activate/?token=%s' % token.hex
             callback_url = self.app.config['ENDPOINT'] + activation_link
 
-            self.assertEqual(1, len(outbox))
+            self.wait_letter(outbox, 1, 0.5)
+
             message = outbox[0].body
             self.assertTrue('Boris' in message)
             self.assertTrue(callback_url in message)
@@ -152,8 +153,82 @@ class AuthTest(DatabasyTest):
         self.assertRedirects(response, url_for('root.home'))
         self.assertNotAuthenticated()
 
+    @fixtures(UserData, ProfileData)
+    def test_reset_password(self, data):
+        # Login form contains link to reset password with correct email.
+        email = UserData.first.email_lower.upper()
+        response = self.client.post(url_for('auth.login'), data={
+            'username_or_email': email,
+            'password': ''
+        })
+        self.assert_200(response)
+        reset_password_link = url_for('auth.reset_password') + '?email=' + email
+        self.assertTrue(reset_password_link in response.data)
+
+        # Email moved to reset password form.
+        response = self.client.get(reset_password_link)
+        self.assert_200(response)
+        html = lxml.html.fromstring(response.data)
+        token_field = html.xpath('//*[@id="pr_email"]')[0]
+        self.assertEqual(email, token_field.value)
+
+        with self.mail.record_messages() as outbox:
+            response = self.client.post(url_for('auth.reset_password'), data={
+                'email': email
+            })
+            self.assertRedirects(response, url_for('auth.login'))
+
+            email_confirmation_tokens = tokens.user_tokens(UserData.first.id, tokens.PASSWORD_RESET_TOKEN_TYPE)
+            self.assertEqual(1, len(email_confirmation_tokens))
+
+            token_hex = email_confirmation_tokens[0].hex
+            change_password_link = url_for('auth.change_password') + '?token=' + token_hex
+
+            self.wait_letter(outbox, 1, 0.5)
+
+            message = outbox[0].body
+            self.assertTrue(UserData.first.username in message)
+            self.assertTrue(change_password_link in message)
+
+            # Even guest can access password change form with the token.
+            response = self.client.get(change_password_link)
+            self.assert_200(response)
+            html = lxml.html.fromstring(response.data)
+            token_field = html.xpath('//*[@id="pc_token"]')[0]
+            self.assertEqual(token_hex, token_field.value)
+            self.assertFalse(html.xpath('//*[@id="pc_old_password"]'))
+
+            new_password = 'new_password'
+            response = self.client.post(url_for('auth.change_password'), data={
+                'token': token_hex,
+                'new_password': new_password,
+                'new_password_again': new_password
+            })
+            self.assertRedirects(response, url_for('root.home'))
+            self.assertAuthenticated()
+            self.assertTrue(auth_service.user_by_id(UserData.first.id).check_password(new_password))
 
 
+    @fixtures(UserData, ProfileData)
+    def test_change_password(self, data):
+        response = self.client.get(url_for('auth.change_password'))
+        self.assert_401(response)
+
+        self.login(UserData.first)
+
+        response = self.client.get(url_for('auth.change_password'))
+        self.assert_200(response)
+        html = lxml.html.fromstring(response.data)
+        self.assertFalse(html.xpath('//*[@id="pc_old_password"]'))
+
+        new_password = 'new_password'
+        response = self.client.post(url_for('auth.change_password'), data={
+            'old_password': 'password',
+            'new_password': new_password,
+            'new_password_again': new_password
+        })
+        self.assertRedirects(response, url_for('root.home'))
+        self.assertTrue(auth_service.user_by_id(UserData.first.id).check_password(new_password))
 
 
 

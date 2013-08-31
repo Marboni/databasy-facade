@@ -1,5 +1,6 @@
 from flask.ext.wtf import Form
 import re
+from sqlalchemy.orm.exc import NoResultFound
 from wtforms import TextField, validators, PasswordField, ValidationError, HiddenField, BooleanField
 from wtforms.validators import Required
 from databasyfacade.services import auth_service
@@ -35,12 +36,30 @@ class SignUpForm(Form):
 
 class LoginForm(Form):
     next = HiddenField('Next', id='li_next')
-
     username_or_email = TextField('Username or email', [Required()], id='li_username_or_email')
-
     password = PasswordField('Password', [Required()], id='li_password')
-
     remember_me = BooleanField('Remember me', default=True, id='li_remember_me')
 
 
+class ResetPasswordForm(Form):
+    email = TextField('Email', [validators.Email()], id='pr_email')
 
+
+class ChangePasswordForm(Form):
+    token = HiddenField('Token', id='pc_token')
+
+    old_password = PasswordField('Old password', id='pc_password')
+
+    new_password = PasswordField('New password', [
+        validators.Length(min=6, max=30),
+        validators.EqualTo('new_password_again', message='Passwords don\'t match.')
+    ], id='pc_new_password')
+
+    new_password_again = PasswordField('New password again', id='pc_new_password_again')
+
+    def validate_old_password(self, field):
+        token = self.token.data
+        old_password = field.data
+
+        if not token and not old_password:
+            raise ValidationError('This field is required.')

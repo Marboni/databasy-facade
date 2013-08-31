@@ -129,7 +129,7 @@ def join_to_model(target_model, inviting_user, users, role):
         model_role.role = role
         dbs().add(model_role)
 
-        topic = '%s shared model "%s" with you.' % (inviting_user.username, target_model.schema_name)
+        topic = '%s shared model "%s" with you' % (inviting_user.username, target_model.schema_name)
 
         from flask import current_app
         model_link = current_app.config['ENDPOINT'] + url_for('models.model', model_id=target_model.id)
@@ -150,7 +150,7 @@ def invite_to_model(target_model, inviting_user, emails, role, sign_up_url):
         invitation = Invitation(target_model.id, email, role)
         dbs().add(invitation)
 
-        topic = '%s shared model "%s" with you.' % (inviting_user.username, target_model.schema_name)
+        topic = '%s shared model "%s" with you' % (inviting_user.username, target_model.schema_name)
         sign_up_link = '%s/?invitation=%s' % (sign_up_url.rstrip('/'), invitation.hex)
 
         from databasyfacade.utils import mail_sender

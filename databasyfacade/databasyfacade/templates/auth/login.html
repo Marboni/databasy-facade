@@ -10,11 +10,38 @@
         <div class="row">
             <div class="span8 offset2">
                 <form id="signInForm" class="form-horizontal" action="{{ url_for('auth.login') }}" method="post">
+                    {% set reset_password_link = url_for('auth.reset_password') %}
+                    {% if login_form.username_or_email.data and '@' in login_form.username_or_email.data %}
+                        {% set reset_password_link = reset_password_link + '?email=' + login_form.username_or_email.data %}
+                    {% endif %}
                     <fieldset>
                         <legend>Login</legend>
-                        {% with form = login_form, excluded_fields = ['remember_me'] %}
+                        {% with form = login_form, excluded_fields = ['password', 'remember_me'] %}
                             {% include 'includes/form_fields.html' %}
                         {% endwith %}
+                        {% if login_form.password.errors %}
+                            <div class="control-group error">
+                                {{ login_form.password.label(class='control-label') }}
+                                <div class="controls">
+                                    {{ login_form.password }}
+                                    {% for error in login_form.password.errors %}
+                                        <br/>
+                                        <div class="help-inline">{{ error }}</div>
+                                    {% endfor %}
+                                    <br/>
+                                    <a id="forgotPassword" href="{{ reset_password_link }}">Forgot password?</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="control-group">
+                                {{ login_form.password.label(class='control-label') }}
+                                <div class="controls">
+                                    {{ login_form.password }}
+                                    <br/>
+                                    <a id="forgotPassword" href="{{ reset_password_link }}">Forgot password?</a>
+                                </div>
+                            </div>
+                        {% endif %}
                         <div class="control-group">
                             <div class="controls">
                                 <label class="checkbox">

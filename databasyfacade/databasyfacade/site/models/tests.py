@@ -17,6 +17,14 @@ class ModelsTest(DatabasyTest):
         self.assert_200(response)
         self.assertTrue('You have no models yet.' in response.data)
 
+        html = lxml.html.fromstring(response.data)
+        user_menu = html.xpath('//li[@id="userMenu"]')[0]
+        user_menu_label = user_menu.xpath('./a')[0]
+        self.assertEqual(user_menu_label.text.strip(), UserData.third.username)
+
+        self.assertTrue(user_menu.xpath('.//a[@href="%s"]' % url_for('auth.change_password')))
+        self.assertTrue(user_menu.xpath('.//a[@href="%s"]' % url_for('auth.logout')))
+
     @fixtures(UserData, ProfileData, ModelInfoData, ModelRoleData)
     def test_dashboard_with_models(self, data):
         self.login(UserData.first)
