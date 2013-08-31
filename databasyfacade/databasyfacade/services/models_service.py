@@ -1,3 +1,4 @@
+from flask import url_for
 from sqlalchemy.orm.exc import NoResultFound
 from databasyfacade.db import dbs
 from databasyfacade.db.auth import User, Profile
@@ -78,7 +79,7 @@ def model_roles(model_id):
     """
     return dbs().query(ModelRole).join(User).join(Profile)\
     .filter(ModelRole.model_id == model_id)\
-    .order_by(ModelRole.role, Profile.name)\
+    .order_by(ModelRole.role, User.username_lower)\
     .all()
 
 def role(model_id, user_id):
@@ -128,15 +129,16 @@ def join_to_model(target_model, inviting_user, users, role):
         model_role.role = role
         dbs().add(model_role)
 
-        from flask import current_app
+        topic = '%s shared model "%s" with you.' % (inviting_user.username, target_model.schema_name)
 
-        topic = '%s shared model with you on %s' % (inviting_user.profile.name, current_app.config['SITE_NAME'])
+        from flask import current_app
+        model_link = current_app.config['ENDPOINT'] + url_for('models.model', model_id=target_model.id)
 
         user.profile.send_mail_async(topic, 'mails/invitation_notification.txt',
-            user_name=user.profile.name,
-            inviting_user_name=inviting_user.profile.name,
-            inviting_user_email=inviting_user.profile.email,
-            schema_name=target_model.schema_name
+            user_name=user.username,
+            inviting_user_name=inviting_user.username,
+            schema_name=target_model.schema_name,
+            model_link=model_link
         )
     dbs().flush()
 
@@ -148,15 +150,12 @@ def invite_to_model(target_model, inviting_user, emails, role, sign_up_url):
         invitation = Invitation(target_model.id, email, role)
         dbs().add(invitation)
 
-        from flask import current_app
-
-        topic = '%s shared model with you on %s' % (inviting_user.profile.name, current_app.config['SITE_NAME'])
+        topic = '%s shared model "%s" with you.' % (inviting_user.username, target_model.schema_name)
         sign_up_link = '%s/?invitation=%s' % (sign_up_url.rstrip('/'), invitation.hex)
 
         from databasyfacade.utils import mail_sender
         mail_sender.send_async(email, topic, 'mails/invitation.txt',
-            inviting_user_name=inviting_user.profile.name,
-            inviting_user_email=inviting_user.profile.email,
+            inviting_user_name=inviting_user.username,
             schema_name=target_model.schema_name,
             sign_up_link=sign_up_link
         )

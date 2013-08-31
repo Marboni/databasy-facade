@@ -163,7 +163,7 @@ def remove_member(model_id, user_id):
         raise NotFound
     except OwnerRoleModificationException:
         raise BadRequest
-    flash('You have removed %s from the team.' % removed_role.user.profile.name, 'success')
+    flash('You have removed %s from the team.' % removed_role.user.username, 'success')
     return redirect(url_for('models.team', model_id=model_id))
 
 

@@ -12,7 +12,7 @@ class AuthTest(DatabasyTest):
     def _test_sign_up_and_activate(self, sign_up_url):
         with self.mail.record_messages() as outbox:
             response = self.client.post(sign_up_url, data={
-                'name': 'Boris',
+                'username': 'Boris',
                 'email': 'BMarchenko@databasy.com',
                 'password': 'password',
                 'password_again': 'password'
@@ -21,17 +21,19 @@ class AuthTest(DatabasyTest):
             self.assertTrue('BMarchenko@databasy.com' in response.data)
 
             try:
-                user = auth_service.user_by_email('bMarchenko@databasy.com')
+                auth_service.user_by_username_or_email('BoriS')
+                user = auth_service.user_by_username_or_email('bMarchenko@databasy.com')
             except NoResultFound:
                 self.fail('User not created.')
 
+            self.assertEqual('Boris', user.username)
+            self.assertEqual('boris', user.username_lower)
             self.assertEqual('bmarchenko@databasy.com', user.email_lower)
             self.assertTrue(user.check_password('password'))
             self.assertFalse(user.active)
 
             try:
                 profile = profiles_service.profile(user.id)
-                self.assertEqual('Boris', profile.name)
                 self.assertEqual('BMarchenko@databasy.com', profile.email)
             except NoResultFound:
                 self.fail('Profile not created.')
@@ -48,7 +50,7 @@ class AuthTest(DatabasyTest):
             self.assertTrue(callback_url in message)
 
             inactive_login_response = self.client.post(url_for('auth.login'), data={
-                'email': user.email_lower,
+                'username_or_email': user.email_lower,
                 'password': 'password'
             })
             self.assert_200(inactive_login_response)
@@ -80,7 +82,7 @@ class AuthTest(DatabasyTest):
 
         response = self.client.post(url_for('auth.sign_up'), data={
             'invitation_hex': invitation_hex,
-            'name': 'Boris',
+            'username': 'Boris',
             'email': email,
             'password': 'password',
             'password_again': 'password'
@@ -89,16 +91,18 @@ class AuthTest(DatabasyTest):
         self.assertAuthenticated()
 
         try:
-            user = auth_service.user_by_email(InvitationData.invitation.email_lower)
+            user = auth_service.user_by_username_or_email(InvitationData.invitation.email_lower)
         except NoResultFound:
             self.fail('User not created.')
 
+        self.assertEquals('Boris', user.username)
+        self.assertEquals('boris', user.username_lower)
+        self.assertEquals(InvitationData.invitation.email_lower, user.email_lower)
         self.assertTrue(user.check_password('password'))
         self.assertTrue(user.active)
 
         try:
             profile = profiles_service.profile(user.id)
-            self.assertEqual('Boris', profile.name)
             self.assertEqual(InvitationData.invitation.email_lower, profile.email)
         except NoResultFound:
             self.fail('Profile not created.')
@@ -116,7 +120,16 @@ class AuthTest(DatabasyTest):
     @fixtures(UserData, ProfileData)
     def test_login(self, data):
         response = self.client.post(url_for('auth.login'), data={
-            'email': ProfileData.first.email,
+            'username_or_email': UserData.first.username,
+            'password': 'password'
+        })
+        self.assertRedirects(response, url_for('root.home'))
+        self.assertAuthenticated()
+
+        self.logout()
+
+        response = self.client.post(url_for('auth.login'), data={
+            'username_or_email': ProfileData.first.email,
             'password': 'password'
         })
         self.assertRedirects(response, url_for('root.home'))
@@ -125,7 +138,7 @@ class AuthTest(DatabasyTest):
         self.logout()
 
         response = self.client.post(url_for('auth.login') + '?next=' + url_for('root.secure'), data={
-            'email': ProfileData.first.email,
+            'username_or_email': ProfileData.first.email,
             'password': 'password',
         })
         self.assertRedirects(response, url_for('root.secure'))

@@ -155,7 +155,7 @@ class ModelsTest(DatabasyTest):
         owner_cells = owner_row.findall('td')
         self.assertEqual(4, len(owner_cells))
 
-        self.assertEqual(ProfileData.second.name, owner_cells[0].text)
+        self.assertEqual(UserData.second.username, owner_cells[0].text)
         self.assertEqual(ProfileData.second.email, owner_cells[1].text)
         self.assertTrue('Owner' in owner_cells[2].text_content())
         owner_member_actions = owner_cells[3].xpath('./div[contains(@class, "memberActions")]')[0]
@@ -164,7 +164,7 @@ class ModelsTest(DatabasyTest):
         developer_row = member_rows[1]
         developer_cells = developer_row.findall('td')
         self.assertEqual(4, len(developer_cells))
-        self.assertEqual(ProfileData.first.name, developer_cells[0].text)
+        self.assertEqual(UserData.first.username, developer_cells[0].text)
         self.assertEqual(ProfileData.first.email, developer_cells[1].text)
         selected_role = developer_cells[2].xpath('.//button[@disabled="disabled"]')[0].attrib['data-role']
         self.assertEqual(ModelRoleData.first_developer_model_b.role, selected_role)
@@ -255,15 +255,15 @@ class ModelsTest(DatabasyTest):
 
             notification_letter = recipient_letters[ProfileData.third.email]
             content = notification_letter.body
-            self.assertTrue(ProfileData.third.name in content)
-            self.assertTrue(ProfileData.second.name in content)
-            self.assertTrue(ProfileData.second.email in content)
+            self.assertTrue(UserData.second.username in content)
+            self.assertTrue(UserData.third.username in content)
             self.assertTrue(ModelInfoData.model_b.schema_name in content)
+            model_link = self.app.config['ENDPOINT'] + url_for('models.model', model_id=ModelInfoData.model_b.id)
+            self.assertTrue(model_link in content)
 
             invitation_letter = recipient_letters[guest_email]
             content = invitation_letter.body
-            self.assertTrue(ProfileData.second.name in content)
-            self.assertTrue(ProfileData.second.email in content)
+            self.assertTrue(UserData.second.username in content)
             self.assertTrue(ModelInfoData.model_b.schema_name in content)
             sign_up_link = self.app.config['ENDPOINT'] + url_for('auth.sign_up') + '?invitation=%s' % guest_invitation.hex
             self.assertTrue(sign_up_link in content)

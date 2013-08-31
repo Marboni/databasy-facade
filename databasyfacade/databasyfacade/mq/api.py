@@ -27,7 +27,7 @@ def user_info(user_id):
         profile = profiles_service.profile(user_id)
         return {
             'user_id': profile.user.id,
-            'name': profile.name,
+            'username': profile.user.username,
             'email': profile.email,
             'active': profile.user.active
         }

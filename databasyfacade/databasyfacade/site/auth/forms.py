@@ -1,5 +1,7 @@
 from flask.ext.wtf import Form
+import re
 from wtforms import TextField, validators, PasswordField, ValidationError, HiddenField, BooleanField
+from wtforms.validators import Required
 from databasyfacade.services import auth_service
 
 __author__ = 'Marboni'
@@ -7,9 +9,9 @@ __author__ = 'Marboni'
 class SignUpForm(Form):
     invitation_hex = HiddenField('Invitation HEX', id='su_invitation_hex')
 
-    name = TextField('Your name', [
-        validators.Length(min=1, max=40)
-    ], id='su_name')
+    username = TextField('Username', [
+        validators.Length(min=3, max=15)
+    ], id='su_username')
 
     email = TextField('Email', [validators.Email()], id='su_email')
 
@@ -20,6 +22,11 @@ class SignUpForm(Form):
 
     password_again = PasswordField('Password again', id='su_password_again')
 
+    def validate_username(self, field):
+        if not re.match('^[\w\-]+$', field.data):
+            raise ValidationError('Username may only contain latin letters, digits, underscore and hyphen symbols.')
+        if auth_service.username_exists(field.data):
+            raise ValidationError('This username is already taken.')
 
     def validate_email(self, field):
         if auth_service.email_exists(field.data):
@@ -29,11 +36,9 @@ class SignUpForm(Form):
 class LoginForm(Form):
     next = HiddenField('Next', id='li_next')
 
-    email = TextField('Email', [
-        validators.Email()
-    ], id='li_email')
+    username_or_email = TextField('Username or email', [Required()], id='li_username_or_email')
 
-    password = PasswordField('Password', id='li_password')
+    password = PasswordField('Password', [Required()], id='li_password')
 
     remember_me = BooleanField('Remember me', default=True, id='li_remember_me')
 

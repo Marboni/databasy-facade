@@ -1,3 +1,4 @@
+from operator import or_
 from flask import url_for, current_app
 from databasyfacade.db import dbs
 from databasyfacade.db.auth import User, Profile
@@ -11,7 +12,7 @@ def send_activation_mail(profile):
     confirmation_link = '%s/?token=%s' % (callback_url, token.hex)
     profile.send_mail_async('Registration Confirmation', 'mails/activation.txt', confirmation_link=confirmation_link)
 
-def create_user(name, email, raw_password, active):
+def create_user(username, email, raw_password, active):
     """ Creates user and his profile. Send letter with email activation token. Newly-created user is not active.
     Returns:
         profile of the new user.
@@ -19,12 +20,12 @@ def create_user(name, email, raw_password, active):
         NoResultFound if user with this ID doesn't exist.
     """
     user = User()
+    user.set_username(username)
     user.set_password(raw_password)
     user.active = active
 
     profile = Profile()
     profile.user = user
-    profile.name = name
     profile.set_email(email)
 
     dbs().add(user)
@@ -47,6 +48,13 @@ def activate_user(token_hex):
         user.active = True
         return user
 
+def username_exists(username):
+    """ Returns if user with specified username exists.
+    Returns:
+        True if user exists, False otherwise.
+    """
+    return bool(dbs().query(User).filter_by(username_lower=username.lower()).count())
+
 def email_exists(email):
     """ Returns if user with specified email exists.
     Returns:
@@ -63,14 +71,15 @@ def user_by_id(user_id):
     """
     return dbs().query(User).filter_by(id=user_id).one()
 
-def user_by_email(email):
-    """ Retrieves user by email.
+def user_by_username_or_email(username_or_email):
+    """ Retrieves user by username or email.
     Returns:
         user.
     Raises:
-        NoResultFound if user with this email doesn't exist.
+        NoResultFound if user with this username or email doesn't exist.
     """
-    return dbs().query(User).filter_by(email_lower=email.lower()).one()
+    value_lower = username_or_email.lower()
+    return dbs().query(User).filter(or_(User.email_lower==value_lower, User.username_lower==value_lower)).one()
 
 def users_by_email(emails):
     """ Retrieves users with emails specified in list.

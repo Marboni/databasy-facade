@@ -25,7 +25,7 @@ class RpcTest(DatabasyTest):
     def test_user_info(self, data):
         info = self.rpc('user_info', UserData.first.id)
         self.assertEqual(ProfileData.first.user_id, info['user_id'])
-        self.assertEqual(ProfileData.first.name, info['name'])
+        self.assertEqual(UserData.first.username, info['username'])
         self.assertEqual(ProfileData.first.email, info['email'])
         self.assertEqual(UserData.first.active, info['active'])
         info = self.rpc('user_info', -1)

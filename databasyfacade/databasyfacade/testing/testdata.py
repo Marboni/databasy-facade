@@ -28,24 +28,32 @@ from databasyfacade.db.auth import User
 class UserData(DataSet):
     class first:
         id = 1001L
+        username = 'MrFirst'
+        username_lower = username.lower()
         email_lower = 'first@databasy.com'
         password = PASSWORD
         active = True
 
     class second:
         id = 1002L
+        username = 'MrSecond'
+        username_lower = username.lower()
         email_lower = 'second@databasy.com'
         password = PASSWORD
         active = True
 
     class third:
         id = 1003L
+        username = 'MrThird'
+        username_lower = username.lower()
         email_lower = 'third@databasy.com'
         password = PASSWORD
         active = True
 
     class fourth:
         id = 1004L
+        username = 'MrFourth'
+        username_lower = username.lower()
         email_lower = 'fourth@databasy.com'
         password = PASSWORD
         active = True
@@ -57,25 +65,21 @@ class ProfileData(DataSet):
     class first:
         id = 1001L
         user_id = UserData.first.id
-        name = 'Mr. First'
         email = 'First@databasy.com'
 
     class second:
         id = 1002L
         user_id = UserData.second.id
-        name = 'Mr. Second'
         email = 'Second@databasy.com'
 
     class third:
         id = 1003L
         user_id = UserData.third.id
-        name = 'Mr. Third'
         email = 'Third@databasy.com'
 
     class fourth:
         id = 1004L
         user_id = UserData.fourth.id
-        name = 'Mr. Fourth'
         email = 'Fourth@databasy.com'
 
 #noinspection PyUnresolvedReferences

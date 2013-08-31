@@ -44,7 +44,7 @@ class DatabasyTest(TestCase):
         if self.is_authenticated():
             self.logout()
         self.client.post(url_for('auth.login'), data={
-            'email': test_user.email_lower,
+            'username_or_email': test_user.email_lower,
             'password': 'password'
         })
         if not self.is_authenticated():

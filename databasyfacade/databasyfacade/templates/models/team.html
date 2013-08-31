@@ -33,7 +33,7 @@
             <tbody>
             {% for model_role in model_roles %}
                 <tr class="member">
-                    <td>{{ model_role.user.profile.name }}</td>
+                    <td>{{ model_role.user.username }}</td>
                     <td>{{ model_role.user.profile.email }}</td>
                     <td>
                         {% if model_role.role == 'owner' %}

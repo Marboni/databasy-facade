@@ -22,7 +22,7 @@ class NewModelForm(ModelForm):
 
 class InviteForm(Form):
     emails = TextAreaField('Emails', [
-        validators.Length(min=3, max=1024)
+        validators.Length(max=1024)
     ], id='if_emails')
 
     role = SelectField('Role',

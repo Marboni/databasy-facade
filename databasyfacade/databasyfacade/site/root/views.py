@@ -15,7 +15,7 @@ def home():
 
     form = SignUpForm()
     if form.validate_on_submit():
-        profile = auth_service.create_user(form.name.data, form.email.data, form.password.data, False)
+        profile = auth_service.create_user(form.username.data, form.email.data, form.password.data, False)
         auth_service.send_activation_mail(profile)
         return render_template('auth/sign_up_completion.html', email=form.email.data)
     return render_template('root/welcome.html',

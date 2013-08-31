@@ -1,6 +1,10 @@
 Hello, {{ user_name }}!
 
-{{ inviting_user_name }} ({{ inviting_user_email }}) shared with you his model "{{ schema_name }}". Model is available on your dashboard.
+{{ inviting_user_name }} shared model "{{ schema_name }}" with you. Model is available on your dashboard.
+
+Click here to go to it right now:
+
+    {{ model_link }}
 
 Regards,
   {{ site_name }} Team.

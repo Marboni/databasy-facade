@@ -26,12 +26,12 @@ def sign_up():
                 if not invitation.active:
                     flash('Sorry, but your invitation has been cancelled.', 'warning')
                     return redirect(url_for('auth.sign_up'))
-                profile = auth_service.create_user(form.name.data, invitation.email_lower, form.password.data, True)
+                profile = auth_service.create_user(form.username.data, invitation.email_lower, form.password.data, True)
                 models_service.accept_invitations(profile.user)
                 login_user(profile.user, True)
                 return redirect(url_for('root.home'))
             else:
-                profile = auth_service.create_user(form.name.data, form.email.data, form.password.data, False)
+                profile = auth_service.create_user(form.username.data, form.email.data, form.password.data, False)
                 auth_service.send_activation_mail(profile)
                 return render_template('auth/sign_up_completion.html', email=request.form['email'])
     else:
@@ -61,9 +61,12 @@ def login():
     form = LoginForm(request.values)
     if form.validate_on_submit():
         try:
-            user = auth_service.user_by_email(form.email.data)
+            user = auth_service.user_by_username_or_email(form.username_or_email.data)
         except NoResultFound:
-            form.email.errors = ['User with this email doesn\'t exist.']
+            if '@' in form.username_or_email.data:
+                form.username_or_email.errors = ['User with this email doesn\'t exist.']
+            else:
+                form.username_or_email.errors = ['User with this username doesn\'t exist.']
         else:
             if user.is_active():
                 if user.check_password(form.password.data):
@@ -73,7 +76,7 @@ def login():
                 else:
                     form.password.errors = ['Incorrect password.']
             else:
-                form.email.errors = ['This email address is not confirmed.']
+                form.username_or_email.errors = ['User\'s email address is not confirmed.']
     return render_template('auth/login.html',
         login_form=form
     )

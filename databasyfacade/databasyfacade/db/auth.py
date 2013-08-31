@@ -15,9 +15,15 @@ class User(Base, UserMixin):
     __tablename__ = 'usr'
 
     id = Column(BigInteger, primary_key=True)
+    username = Column(String(15), unique=True, nullable=False)
+    username_lower = Column(String(15), unique=True, nullable=False)
     email_lower = Column(String(50), unique=True, nullable=False)
     password = Column(String(80))
     active = Column(Boolean())
+
+    def set_username(self, username):
+        self.username = username
+        self.username_lower = username.lower()
 
     def set_password(self, raw_password):
         self.password = crypt(raw_password, current_app.config['SECRET_KEY'])
@@ -39,7 +45,6 @@ class Profile(Base):
     user_id = Column(BigInteger, ForeignKey('usr.id', ondelete='CASCADE'), unique=True)
     user = relationship('User', backref=backref('profile', uselist=False))
 
-    name = Column(String(30), nullable=False)
     email = Column(String(50), unique=True, nullable=False)
 
     def set_email(self, email):
@@ -47,12 +52,12 @@ class Profile(Base):
         self.user.email_lower = email.lower()
 
     def send_mail(self, subject, template, **kwargs):
-        kwargs['username'] = self.name
+        kwargs['username'] = self.user.username
         from databasyfacade.utils import mail_sender
         mail_sender.send(self.email, subject, template, **kwargs)
 
     def send_mail_async(self, subject, template, **kwargs):
-        kwargs['username'] = self.name
+        kwargs['username'] = self.user.username
         from databasyfacade.utils import mail_sender
         mail_sender.send_async(self.email, subject, template, **kwargs)
 

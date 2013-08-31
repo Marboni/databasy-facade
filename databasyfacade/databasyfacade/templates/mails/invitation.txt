@@ -1,6 +1,6 @@
 Hello!
 
-{{ inviting_user_name }} ({{ inviting_user_email }}) wants to share with you his database model "{{ schema_name }}".
+{{ inviting_user_name }} wants to share with you his database model "{{ schema_name }}".
 
 Please, click on the following link to sign up and access it:
 
