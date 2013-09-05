@@ -94,7 +94,10 @@ class PubSubTest(DatabasyTest):
         self.sub2.run()
 
     def test_echo(self):
-        pub_server().publish('echo', 'Hello!')
-        time.sleep(0.5)
+        sub1 = self.subscribe()
+        sub2 = self.subscribe()
 
-        self.assertEqual('Hello!', self.sub1.message)
+        pub_server().publish('echo', 'Hello!')
+
+        sub1.wait_message('echo', ('Hello!',), 0.5)
+        sub2.wait_message('echo', ('Hello!',), 0.5)

@@ -28,7 +28,7 @@ class RpcServer(object):
         self.address = 'tcp://*:%s' % port
         self.context = zmq.Context()
 
-    def listen(self):
+    def _listen(self):
         self.socket = self.context.socket(zmq.REP)
         self.socket.bind(self.address)
 
@@ -58,7 +58,7 @@ class RpcServer(object):
             self.socket.send_pyobj(response)
 
     def run(self):
-        t = threading.Thread(target=self.listen, name='rpc_server')
+        t = threading.Thread(target=self._listen, name='rpc_server')
         t.daemon = True
         t.start()
 
@@ -80,7 +80,7 @@ class Publisher(object):
         }
         self.messages.put_nowait(message)
 
-    def deliver(self):
+    def _deliver(self):
         self.socket = self.context.socket(zmq.PUB)
         self.socket.bind(self.address)
         time.sleep(0.5)
@@ -90,7 +90,7 @@ class Publisher(object):
             time.sleep(0.05)
 
     def run(self):
-        t = threading.Thread(target=self.deliver, name='pub_server')
+        t = threading.Thread(target=self._deliver, name='pub_server')
         t.daemon = True
         t.start()
 

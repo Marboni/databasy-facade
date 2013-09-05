@@ -6,9 +6,28 @@ import os
 import time
 from databasyfacade import app, db
 from databasyfacade.db import dbs
+from databasyfacade.mq.client import Subscriber
 from databasyfacade.mq.engine import rpc_server, pub_server
 
 __author__ = 'Marboni'
+
+class TestSubscriber(Subscriber):
+    def __init__(self, test):
+        super(TestSubscriber, self).__init__('tcp://localhost:6667')
+        self.test = test
+        self.messages_and_args = []
+
+    def handle(self, message, *args):
+        self.messages_and_args.append((message, args))
+
+    def wait_message(self, message, args, timeout):
+        timeout_time = datetime.now() + timedelta(seconds=timeout)
+        while datetime.now() < timeout_time:
+            for ma in self.messages_and_args:
+                if ma == (message, args):
+                    return
+            time.sleep(0.05)
+        self.test.fail('Subscribed didn\'t receive message "%s" with arguments %s.' % (message, args))
 
 class DatabasyTest(TestCase):
     def create_app(self):
@@ -39,6 +58,10 @@ class DatabasyTest(TestCase):
             time.sleep(0.05)
         self.fail('%s letter(s) didn\'t received during %s seconds.' % (expected_letters_count, timeout))
 
+    def subscribe(self):
+        subscriber = TestSubscriber(self)
+        subscriber.run()
+        return subscriber
 
     def login(self, test_user):
         if self.is_authenticated():

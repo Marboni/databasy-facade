@@ -3,6 +3,7 @@ from flask.ext.login import logout_user, login_user, current_user
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.datastructures import MultiDict
 from werkzeug.exceptions import NotFound, Unauthorized
+from databasyfacade.mq.engine import pub_server
 from databasyfacade.services import auth_service, models_service, profiles_service
 from databasyfacade.site.auth.forms import LoginForm, SignUpForm, ResetPasswordForm, ChangePasswordForm
 from databasyfacade.utils import tokens
@@ -110,7 +111,9 @@ def activate():
 @bp.route('/logout/')
 def logout():
     if current_user.is_authenticated():
+        user_id = current_user.id
         logout_user()
+        pub_server().publish('logout', user_id)
     return redirect(url_for('root.home'))
 
 @bp.route('/reset-password/', methods=['GET', 'POST'])

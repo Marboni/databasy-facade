@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import lxml.html
 from flask import url_for
 from sqlalchemy.orm.exc import NoResultFound
@@ -145,13 +146,17 @@ class AuthTest(DatabasyTest):
         self.assertRedirects(response, url_for('root.secure'))
         self.assertAuthenticated()
 
+
     @fixtures(UserData)
     def test_logout(self, data):
+        subscriber = self.subscribe()
         self.login(UserData.first)
 
         response = self.client.get(url_for('auth.logout'))
         self.assertRedirects(response, url_for('root.home'))
         self.assertNotAuthenticated()
+
+        subscriber.wait_message('logout', (UserData.first.id,), 0.5)
 
     @fixtures(UserData, ProfileData)
     def test_reset_password(self, data):
