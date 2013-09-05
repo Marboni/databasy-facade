@@ -323,7 +323,7 @@ class ModelsTest(DatabasyTest):
         })
         self.assert_200(response)
         self.assertEqual(ModelRole.VIEWER, models_service.role(model_id, user_id).role)
-        subscriber.wait_message('change_role', (user_id,), 0.5)
+        subscriber.wait_message('change_role', (model_id, user_id,), 0.5)
 
         response = self.client.post(url_for('models.change_member_role', model_id=model_id, user_id=user_id), data={
             'role': ModelRole.OWNER

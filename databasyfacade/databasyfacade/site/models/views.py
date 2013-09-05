@@ -188,7 +188,7 @@ def change_member_role(model_id, user_id):
     role = request.form['role']
     try:
         models_service.update_role(model_id, user_id, role)
-        pub_server().publish('change_role', user_id)
+        pub_server().publish('change_role', model_id, user_id)
     except NoResultFound:
         raise NotFound
     except OwnerRoleModificationException:
