@@ -27,7 +27,7 @@ class TestSubscriber(Subscriber):
                 if ma == (message, args):
                     return
             time.sleep(0.05)
-        self.test.fail('Subscribed didn\'t receive message "%s" with arguments %s.' % (message, args))
+        self.test.fail('Subscriber didn\'t receive message "%s" with arguments %s.' % (message, args))
 
 class DatabasyTest(TestCase):
     def create_app(self):

@@ -4,6 +4,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import NotFound, BadRequest, Unauthorized
 from databasyfacade.auth import has_role, check_role
 from databasyfacade.db.models import ModelRole
+from databasyfacade.mq.engine import pub_server
 from databasyfacade.services import models_service, auth_service
 from databasyfacade.services.errors import OwnerRoleModificationException
 from databasyfacade.site.models.forms import NewModelForm, ModelForm, InviteForm
@@ -187,6 +188,7 @@ def change_member_role(model_id, user_id):
     role = request.form['role']
     try:
         models_service.update_role(model_id, user_id, role)
+        pub_server().publish('change_role', user_id)
     except NoResultFound:
         raise NotFound
     except OwnerRoleModificationException:
