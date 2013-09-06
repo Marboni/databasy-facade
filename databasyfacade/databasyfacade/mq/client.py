@@ -14,21 +14,25 @@ class RpcClient(object):
             'args': args
         }
         socket = self.context.socket(zmq.REQ)
-        socket.connect(self.address)
-        socket.send_pyobj(request)
-        response = socket.recv_pyobj()
+        try:
+            socket.connect(self.address)
+            socket.send_pyobj(request)
+            response = socket.recv_pyobj()
 
-        if response['status'] == 'ERROR':
-            e = response['error']
-            raise e
-        else:
-            return response['result']
+            if response['status'] == 'ERROR':
+                e = response['error']
+                raise e
+            else:
+                return response['result']
+        finally:
+            socket.close()
 
 
 class Subscriber(object):
     """ Subclasses should define methods exec_<command>(*args) to handle commands. If no method found,
         exec(command, *args) will be called.
     """
+
     def __init__(self, address):
         super(Subscriber, self).__init__()
         self.address = address
